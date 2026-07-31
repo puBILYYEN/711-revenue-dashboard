@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>7-ELEVEN 門市月營收 AI 智慧回推系統</title>
+  <meta name="description" content="7-11 全台 7,313 間門市月營收 AI 雙層模型估算查詢看板">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
+  <style>
+    :root{--bg:#f7f1e6;--bgc:#f2eadc;--bgh:#e8dfd1;--b:rgba(15,23,42,.08);--bb:rgba(15,23,42,.12);--ac:#3b82f6;--cy:#06b6d4;--pu:#8b5cf6;--gr:#10b981;--ye:#f59e0b;--re:#ef4444;--or:#f97316;--tx:#0f172a;--tm:#475569;--td:#64748b;--g:#00a650;--g-ld:#00a650;--g-hd:#00a650;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:"Noto Sans TC",sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;}
+    .brand-seven{color:#ee3124;}
+    #loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:1rem;transition:opacity .5s;}
+    #loading.hide{opacity:0;pointer-events:none;}
+    .ld-logo{font-size:2.5rem;font-weight:900;color:var(--g-ld);letter-spacing:-2px;}
+    .ld-bar{width:240px;height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
+    .ld-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--cy));border-radius:4px;transition:width .3s ease;width:0%;}
+    .ld-txt{font-size:.75rem;color:var(--tm);}
+    .hd{background:linear-gradient(135deg,#09132a,#0e2040,#09132a);border-bottom:1px solid var(--b);padding:0 2rem;position:sticky;top:0;z-index:50;}
+    .hdi{max-width:1700px;margin:0 auto;display:flex;align-items:center;height:62px;gap:1.25rem;}
+    .hd-logo{display:flex;align-items:center;gap:.7rem;}
+    .hd-badge{width:40px;height:40px;border-radius:8px;position:relative;overflow:hidden;background:linear-gradient(180deg,#ff8200 0%,#ff8200 14%,#ed1c24 14%,#ed1c24 66%,var(--g-hd) 66%,var(--g-hd) 100%);box-shadow:0 0 18px rgba(0,166,80,.4);}
+    .hd-badge-7{position:absolute;top:0;left:0;right:0;height:66%;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;font-style:italic;color:#fff;line-height:1;font-family:Georgia,"Times New Roman",serif;}
+    .hd-badge-ev{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:7px;font-weight:700;font-style:italic;letter-spacing:.2px;color:#fff;font-family:Georgia,"Times New Roman",serif;}
+    .hd-t h1{font-size:1rem;font-weight:700;color:#fff;}
+    .hd-t p{font-size:.65rem;color:var(--tm);}
+    .hdiv{width:1px;height:28px;background:var(--b);}
+    .sct{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:9px;padding:3px;gap:2px;}
+    .scb{padding:4px 13px;border-radius:6px;border:none;background:transparent;color:var(--tm);font-size:.76rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
+    .scb.on{background:var(--ac);color:#fff;box-shadow:0 2px 12px rgba(59,130,246,.4);}
+    .scb:hover:not(.on){color:var(--tx);background:rgba(255,255,255,.06);}
+    .hst{margin-left:auto;display:flex;gap:1.5rem;}
+    .hsv{font-size:1.05rem;font-weight:700;color:var(--g);}
+    .hsl{font-size:.62rem;color:var(--tm);margin-top:1px;}
+    .main{max-width:1700px;margin:0 auto;padding:1.25rem 2rem;display:grid;grid-template-columns:370px 1fr;gap:1rem;min-height:calc(100vh - 62px);}
+    .left{display:flex;flex-direction:column;gap:.9rem;}
+    .cd{background:var(--bgc);border:1px solid var(--b);border-radius:14px;}
+    .scard{padding:1rem;}
+    .slbl{font-size:.68rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.65rem;}
+    .swrap{position:relative;}
+    .sico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tm);font-size:14px;pointer-events:none;}
+    .sinp{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:9px;padding:9px 12px 9px 34px;color:var(--tx);font-size:.85rem;font-family:inherit;outline:none;transition:border .2s;}
+    .sinp:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+    .sinp::placeholder{color:var(--tm);}
+    .frow{display:flex;gap:.5rem;margin-top:.55rem;}
+    .fsel{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:8px;padding:6px 9px;color:var(--tx);font-size:.75rem;font-family:inherit;outline:none;cursor:pointer;}
+    .fsel option{background:#1e293b;}
+    .scnt{margin-top:.5rem;font-size:.7rem;color:var(--tm);}
+    .scnt span{color:var(--cy);font-weight:600;}
+    .lcard{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+    .lhd{padding:.65rem .9rem;border-bottom:1px solid var(--b);font-size:.68rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.08em;display:flex;justify-content:space-between;align-items:center;}
+    .sbtns{display:flex;gap:3px;}
+    .sbtn{padding:3px 8px;border-radius:5px;border:1px solid var(--b);background:transparent;color:var(--tm);font-size:.65rem;cursor:pointer;font-family:inherit;transition:all .15s;}
+    .sbtn.on{background:var(--ac);color:#fff;border-color:var(--ac);}
+    .lst{overflow-y:auto;flex:1;padding:.4rem;}
+    .lst::-webkit-scrollbar{width:3px;}
+    .lst::-webkit-scrollbar-thumb{background:rgba(99,179,237,.2);border-radius:3px;}
+    .si{padding:.65rem .7rem;border-radius:9px;cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px;display:flex;align-items:center;gap:.65rem;}
+    .si:hover{background:var(--bgh);border-color:var(--b);}
+    .si.on{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.35);}
+    .si.zp{border-left:3px solid var(--or);}
+    .sirk{font-size:.62rem;color:var(--tm);width:20px;text-align:center;flex-shrink:0;}
+    .sifo{flex:1;min-width:0;}
+    .sinm{font-size:.83rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .silc{font-size:.67rem;color:var(--tm);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .sirv{text-align:right;flex-shrink:0;}
+    .sirvv{font-size:.85rem;font-weight:700;color:var(--g);}
+    .sirvu{font-size:.6rem;color:var(--tm);}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--or);flex-shrink:0;box-shadow:0 0 6px var(--or);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .mhint{text-align:center;padding:.65rem;font-size:.68rem;color:var(--tm);}
+    .right{display:flex;flex-direction:column;gap:.9rem;}
+    .det{position:relative;overflow:hidden;}
+    .det::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--g),var(--cy),var(--ac));}
+    .dp{padding:1.4rem;}
+    .de{display:flex;flex-direction:row;align-items:center;justify-content:center;padding:.6rem;color:var(--tm);gap:.5rem;}
+    .de-ico{font-size:1.2rem;opacity:.3;}
+    .dhd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.1rem;}
+    .dnm{font-size:1.55rem;font-weight:900;color:#fff;line-height:1.1;}
+    .did{font-size:.68rem;color:var(--tm);margin-top:2px;}
+    .dadr{font-size:.74rem;color:var(--td);margin-top:4px;}
+    .zpb{background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.4);color:var(--or);font-size:.65rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+    .rvb{background:linear-gradient(135deg,rgba(0,166,80,.07),rgba(6,182,212,.04));border:1px solid rgba(0,166,80,.18);border-radius:13px;padding:1.1rem 1.3rem;margin-bottom:1.1rem;}
+    .rvlbl{font-size:.68rem;color:var(--tm);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem;}
+    .rvmain{font-size:2.7rem;font-weight:900;color:var(--g);line-height:1;letter-spacing:-1px;}
+    .rvunit{font-size:.95rem;color:var(--td);margin-left:3px;font-weight:400;}
+    .cir{margin-top:.65rem;}
+    .citp{display:flex;justify-content:space-between;font-size:.68rem;color:var(--tm);margin-bottom:4px;}
+    .cibw{height:6px;background:rgba(255,255,255,.05);border-radius:3px;position:relative;overflow:hidden;}
+    .cibf{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,var(--ye),var(--g));border-radius:3px;transition:all .5s;}
+    .cibd{display:flex;justify-content:space-between;margin-top:3px;font-size:.68rem;}
+    .cilo{color:var(--ye);font-weight:600;}
+    .cihi{color:var(--gr);font-weight:600;}
+    .scpills{display:flex;gap:.45rem;margin-top:.7rem;}
+    .spill{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:8px;padding:.45rem;text-align:center;cursor:pointer;transition:all .2s;}
+    .spill.on{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);}
+    .spillp{font-size:.62rem;color:var(--tm);}
+    .spillv{font-size:.8rem;font-weight:700;color:var(--tx);margin-top:1px;}
+    .spill.on .spillv{color:var(--cy);}
+    .ig{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;margin-bottom:.9rem;}
+    .ic{background:rgba(255,255,255,.03);border:1px solid var(--b);border-radius:9px;padding:.65rem;}
+    .icl{font-size:.62rem;color:var(--tm);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;}
+    .icv{font-size:1.05rem;font-weight:700;}
+    .ics{font-size:.62rem;color:var(--tm);}
+    .scrow{display:flex;align-items:center;justify-content:space-around;background:rgba(255,255,255,.03);border:1px solid var(--b);border-radius:9px;padding:.7rem 1rem;margin-bottom:.9rem;}
+    .sci{text-align:center;}
+    .scil{font-size:.6rem;color:var(--tm);margin-bottom:2px;}
+    .sciv{font-size:1.1rem;font-weight:800;}
+    .sciv.l1{color:var(--pu);}
+    .sciv.l2{color:var(--cy);}
+    .sciv.cb{color:var(--g);}
+    .scx{font-size:1rem;color:var(--tm);}
+    .mrow{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+    .mcp{padding:1.2rem;}
+    .mchd{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+    .mcb{padding:2px 7px;border-radius:4px;font-size:.6rem;font-weight:700;}
+    .mcbl1{background:rgba(139,92,246,.18);color:var(--pu);border:1px solid rgba(139,92,246,.3);}
+    .mcbl2{background:rgba(6,182,212,.12);color:var(--cy);border:1px solid rgba(6,182,212,.25);}
+    .mcsub{font-size:.68rem;color:var(--tm);margin-bottom:.7rem;}
+    .fr{display:flex;align-items:center;gap:.45rem;margin-bottom:.55rem;}
+    .fn{font-size:.7rem;color:var(--td);width:62px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .fbw{flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;}
+    .fb{height:100%;border-radius:3px;transition:width .5s;}
+    .fv{font-size:.65rem;min-width:40px;text-align:right;flex-shrink:0;}
+    .brow{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+    .vp{padding:1.2rem;}
+    .vttl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tm);margin-bottom:.9rem;}
+    .spb{display:flex;align-items:center;gap:.9rem;padding:.7rem .9rem;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.18);border-radius:9px;margin-bottom:.7rem;}
+    .sprho{font-size:2rem;font-weight:900;color:var(--gr);}
+    .spinfo{font-size:.68rem;color:var(--tm);line-height:1.6;}
+    .spinfo b{color:var(--td);}
+    .vnote{font-size:.68rem;color:var(--tm);line-height:1.6;padding:.55rem .7rem;background:rgba(255,255,255,.03);border-radius:7px;border-left:3px solid var(--ac);margin-bottom:.6rem;}
+    .vwarn{font-size:.68rem;color:var(--tm);line-height:1.6;padding:.55rem .7rem;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.12);border-radius:7px;}
+    .mapbox-container{position:relative;height:320px;border-radius:14px;border:1px solid var(--bb);overflow:hidden;margin-top:1rem;background:#fff;}
+    .map-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--tm);font-size:.95rem;font-weight:600;text-align:center;padding:1rem;pointer-events:none;background:var(--bgc);z-index:1;}
+    .mapbox-container.map-active .map-hint{display:none;}
+    .rkp{padding:1.2rem;}
+    .rkttl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tm);margin-bottom:.75rem;}
+    .rktbs{display:flex;gap:4px;margin-bottom:.7rem;}
+    .rktb{padding:4px 11px;border-radius:6px;border:1px solid var(--b);background:transparent;color:var(--tm);font-size:.68rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;}
+    .rktb.on{background:var(--ac);color:#fff;border-color:var(--ac);}
+    .ri{display:flex;align-items:center;gap:.55rem;padding:.45rem .5rem;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:all .15s;border-radius:5px;}
+    .ri:hover{background:var(--bgh);}
+    .ri:last-child{border-bottom:none;}
+    .rinum{font-size:.7rem;font-weight:700;width:20px;text-align:center;}
+    .rinum.t{color:var(--ye);}
+    .rinum.b{color:var(--re);}
+    .rifo{flex:1;min-width:0;}
+    .rinm{font-size:.76rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .rict{font-size:.62rem;color:var(--tm);}
+    .rirv{font-size:.76rem;font-weight:700;}
+    .rirv.t{color:var(--gr);}
+    .rirv.b{color:var(--re);}
+    .zpc{border-color:rgba(249,115,22,.2);}
+    .zpp{padding:1.2rem;}
+    .zphd{display:flex;align-items:center;gap:.5rem;margin-bottom:.65rem;}
+    .zpttl{font-size:.85rem;font-weight:700;color:var(--or);}
+    .zpcnt{margin-left:auto;font-size:.68rem;color:var(--tm);}
+    .zpnote{font-size:.68rem;color:var(--tm);line-height:1.55;margin-bottom:.7rem;}
+    .zplist{display:flex;flex-direction:column;gap:.4rem;max-height:180px;overflow-y:auto;}
+    .zplist::-webkit-scrollbar{width:3px;}
+    .zplist::-webkit-scrollbar-thumb{background:rgba(249,115,22,.3);border-radius:3px;}
+    .zpit{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:rgba(249,115,22,.04);border:1px solid rgba(249,115,22,.12);border-radius:7px;cursor:pointer;transition:all .15s;}
+    .zpit:hover{background:rgba(249,115,22,.09);border-color:rgba(249,115,22,.28);}
+    .zpinm{font-size:.8rem;font-weight:600;}
+    .zpilc{font-size:.65rem;color:var(--tm);margin-top:1px;}
+    .zpipop{font-size:.67rem;color:var(--tm);margin-left:auto;white-space:nowrap;}
+    .zprbtn{padding:3px 9px;border-radius:5px;border:1px solid rgba(249,115,22,.35);background:transparent;color:var(--or);font-size:.63rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+    .zprbtn:hover{background:rgba(249,115,22,.12);}
+    .err-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:1rem;font-size:.8rem;color:#fca5a5;line-height:1.7;}
+    @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .fu{animation:fu .3s ease forwards;}
+    @media(max-width:1100px){.main{grid-template-columns:310px 1fr}.mrow{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="ld-logo"><span class="brand-seven">7</span>-ELEVE<span style="font-size:1.32em;vertical-align:baseline;display:inline-block;line-height:1;">n</span></div>
+  <div style="font-size:.8rem;color:var(--tm)">AI 門市月營收智慧回推系統 v8</div>
+  <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
+  <div class="ld-txt" id="ldTxt">正在連接伺服器…</div>
+</div>
+
+<header class="hd">
+  <div class="hdi">
+    <div class="hd-logo">
+      <div class="hd-badge"><div class="hd-badge-7">7</div><div class="hd-badge-ev">eleven</div></div>
+      <div class="hd-t"><h1>門市月營收 AI 智慧回推系統</h1><p>全台 7,313 間門市 · Ridge × PCA 雙層架構 · v8</p></div>
+    </div>
+    <div class="hdiv"></div>
+    <span style="font-size:.68rem;color:var(--tm)">台灣本業份額情境</span>
+    <div class="sct">
+      <button class="scb" id="sb60" onclick="setSc(60)">60%</button>
+      <button class="scb on" id="sb62" onclick="setSc(62)">62% ★</button>
+      <button class="scb" id="sb65" onclick="setSc(65)">65%</button>
+    </div>
+    <div class="hdiv"></div>
+    <div class="hst">
+      <div><div class="hsv" id="hS">—</div><div class="hsl">收錄門市</div></div>
+      <div><div class="hsv" id="hT">—</div><div class="hsl">目標月總營收</div></div>
+      <div><div class="hsv" id="hA">—</div><div class="hsl">平均月營收</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="left">
+    <div class="cd scard">
+      <div class="slbl">🔍 門市搜尋</div>
+      <div class="swrap">
+        <span class="sico">⌕</span>
+        <input id="sI" class="sinp" placeholder="店名、地址、鄉鎮…" oninput="doSrch()">
+      </div>
+      <div class="frow">
+        <select id="fC" class="fsel" onchange="onCC()"><option value="">全部縣市</option></select>
+        <select id="fT" class="fsel" onchange="doSrch()"><option value="">全部鄉鎮</option></select>
+      </div>
+      <div class="scnt">顯示 <span id="sCnt">0</span> 間門市</div>
+    </div>
+    <div class="cd lcard">
+      <div class="lhd">
+        <span>門市列表</span>
+        <div class="sbtns">
+          <button class="sbtn on" id="srR" onclick="setSort('rev')">↓ 營收</button>
+          <button class="sbtn" id="srN" onclick="setSort('name')">店名</button>
+        </div>
+      </div>
+      <div class="lst" id="SL"></div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="cd det">
+      <div class="dp">
+        <div class="de" id="dE"><div class="de-ico">🏪</div><div style="font-size:.82rem">請從左側選擇門市查看詳細分析</div></div>
+        <div id="map" class="mapbox-container"><div class="map-hint">請從左側選擇門市以顯示地圖</div></div>
+        <div id="dC" style="display:none">
+          <div class="dhd">
+            <div><div class="dnm" id="dN"></div><div class="did" id="dID"></div><div class="dadr" id="dAD"></div></div>
+            <div id="dZB" style="display:none" class="zpb">⚠️ Zero POI 待核對</div>
+          </div>
+          <div class="rvb">
+            <div class="rvlbl">估算月營收（<span id="dSC">62%</span> 份額情境）</div>
+            <div><span class="rvmain" id="dRM">—</span><span class="rvunit">萬元 / 月</span></div>
+            <div class="cir">
+              <div class="citp"><span>80% Bootstrap 信賴區間</span><span id="dCR">—</span></div>
+              <div class="cibw"><div class="cibf" id="dCF"></div></div>
+              <div class="cibd"><span class="cilo" id="dCL">—</span><span class="cihi" id="dCH">—</span></div>
+            </div>
+            <div class="scpills">
+              <div class="spill" id="p60" onclick="setSc(60)"><div class="spillp">60% 份額</div><div class="spillv" id="p60v">—</div></div>
+              <div class="spill on" id="p62" onclick="setSc(62)"><div class="spillp">62% ★</div><div class="spillv" id="p62v">—</div></div>
+              <div class="spill" id="p65" onclick="setSc(65)"><div class="spillp">65% 份額</div><div class="spillv" id="p65v">—</div></div>
+            </div>
+          </div>
+          <div class="ig">
+            <div class="ic"><div class="icl">村里人口</div><div class="icv" id="iPop">—</div><div class="ics">人</div></div>
+            <div class="ic"><div class="icl">競爭門市</div><div class="icv" id="iComp">—</div><div class="ics">家（附近）</div></div>
+            <div class="ic"><div class="icl">地區租金基準</div><div class="icv" id="iRent">—</div><div class="ics">元/坪 <span id="iRFb" style="color:var(--or)"></span></div></div>
+            <div class="ic"><div class="icl">餐飲 POI</div><div class="icv" id="iCat">—</div><div class="ics">個</div></div>
+            <div class="ic"><div class="icl">交通 POI</div><div class="icv" id="iTra">—</div><div class="ics">個</div></div>
+            <div class="ic"><div class="icl">自家門市</div><div class="icv" id="iOwn">—</div><div class="ics">家（同鄉鎮）</div></div>
+          </div>
+          <div class="scrow">
+            <div class="sci"><div class="scil">層一地區基準分</div><div class="sciv l1" id="sL1">—</div></div>
+            <div class="scx">✕</div>
+            <div class="sci"><div class="scil">層二店內相對分</div><div class="sciv l2" id="sL2">—</div></div>
+            <div class="scx">=</div>
+            <div class="sci"><div class="scil">綜合分數</div><div class="sciv cb" id="sCB">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mrow" id="mR" style="display:none">
+      <div class="cd mcp">
+        <div class="mchd"><span class="mcb mcbl1">層一</span><span style="color:var(--pu)">Ridge 地區基準模型</span></div>
+        <div class="mcsub">各特徵 Ridge 係數（正=拉高基準 / 負=拉低）</div>
+        <div id="l1F"></div>
+      </div>
+      <div class="cd mcp">
+        <div class="mchd"><span class="mcb mcbl2">層二</span><span style="color:var(--cy)">PCA + 熵權法 相對分數</span></div>
+        <div class="mcsub">特徵權重對比（紫=PCA · 青=熵權法）</div>
+        <div id="l2F"></div>
+      </div>
+    </div>
+
+    <div class="brow">
+      <div class="cd vp">
+        <div class="vttl">✅ 合理性驗證結果</div>
+        <div class="spb">
+          <div class="sprho">+0.219</div>
+          <div class="spinfo"><b>Spearman 相關係數</b><br>n = 7,225 筆 · p &lt; 0.001<br>方法：殘差法（控制人口）<br>採用為正式驗證結論</div>
+        </div>
+        <div class="vnote">💡 <b>資訊防火牆</b>：所得中位數全程未進入模型訓練，僅於最終驗證階段對照方向合理性——確保驗證獨立性，避免循環論證。</div>
+        <div class="vwarn">⚠️ Naive 人均法 Spearman = <span style="color:var(--re)">−0.235</span>（失真）：人口越多店越密，稀釋人均，非模型問題，已棄用。</div>
+      </div>
+      <div class="cd rkp">
+        <div class="rkttl">🏆 門市營收排行</div>
+        <div class="rktbs">
+          <button class="rktb on" id="rtT" onclick="setRk('top')">TOP 5 ↑</button>
+          <button class="rktb" id="rtB" onclick="setRk('bot')">底部 5 ↓</button>
+        </div>
+        <div id="RL"></div>
+      </div>
+    </div>
+
+    <div class="cd zpc">
+      <div class="zpp">
+        <div class="zphd"><span style="font-size:1.1rem">⚠️</span><span class="zpttl">待人工核對：Zero POI 門市</span><span class="zpcnt" id="zCnt">共 0 家</span></div>
+        <div class="zpnote">以下門市周邊 POI 資料為零，可能影響層二估算準確度，建議人工確認地址或補齊特徵。</div>
+        <div class="zplist" id="ZL"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const L1=[{n:'自家門市',v:.234},{n:'競爭門市',v:.145},{n:'餐飲POI',v:-.124},{n:'機構POI',v:.090},{n:'生活POI',v:-.039},{n:'戶數',v:.016},{n:'交通POI',v:-.009},{n:'人口',v:-.005}];
+const L2=[{n:'人口',p:.376,e:.037},{n:'戶數',p:.377,e:.049},{n:'餐飲POI',p:.228,e:.065},{n:'生活POI',p:.223,e:.300},{n:'機構POI',p:.300,e:.068},{n:'交通POI',p:.230,e:.229},{n:'競爭門市',p:.299,e:.131},{n:'自家門市',p:.262,e:.120}];
+const TREV={60:183.71,62:189.84,65:199.02};
+let ALL=[],FIL=[],SEL=null,SC=62,SO='rev',RK='top',MAX_REV=1;
+
+const rm=v=>(v/1e4).toFixed(1);
+const rk=v=>v>=1e7?(v/1e4).toFixed(0)+'萬':v>=1e4?(v/1e4).toFixed(1)+'萬':v.toLocaleString();
+const $=id=>document.getElementById(id);
+
+function setProgress(pct, txt) {
+  $('ldFill').style.width = pct + '%';
+  $('ldTxt').textContent = txt;
+}
+
+async function loadData() {
+  try {
+    setProgress(10, '正在下載門市資料（2MB）…');
+    const [r1, r2] = await Promise.all([
+      fetch('data_stores.json'),
+      fetch('data_zeropoi.json')
+    ]);
+    
+    setProgress(50, '解析門市資料中…');
+    
+    if (!r1.ok) throw new Error('找不到 data_stores.json，請確認伺服器有啟動');
+    
+    const [stores, zeropoi] = await Promise.all([r1.json(), r2.json()]);
+    
+    setProgress(85, '建立索引…');
+    
+    // Small delay to let progress bar show
+    await new Promise(r => setTimeout(r, 100));
+    
+    setProgress(100, '載入完成！');
+    
+    await new Promise(r => setTimeout(r, 400));
+    
+    return { stores, zeropoi };
+  } catch(e) {
+    $('ldTxt').textContent = '❌ 載入失敗：' + e.message;
+    $('ldFill').style.background = 'var(--re)';
+    throw e;
+  }
+}
+
+async function init() {
+  const { stores, zeropoi } = await loadData();
+  
+  ALL = stores;
+  FIL = [...ALL];
+  MAX_REV = Math.max(...ALL.map(s=>s.rev62||0));
+  
+  const cities=[...new Set(ALL.map(s=>s.city))].sort();
+  const cf=$('fC');
+  cities.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cf.appendChild(o);});
+  
+  updHd(); rList(); rZP(zeropoi); rL1(); rL2(); setRk('top');
+  try {
+    await ensureMap();
+  } catch(e) {
+    console.error('地圖初始化失敗，已略過地圖功能：', e);
+  }
+
+  $('loading').classList.add('hide');
+  if(map) requestAnimationFrame(() => map.resize());
+}
+
+function updHd(){
+  $('hS').textContent=ALL.length.toLocaleString();
+  $('hT').textContent=TREV[SC]+' 億';
+  const avg=ALL.reduce((s,x)=>s+(x['rev'+SC]||0),0)/ALL.length;
+  $('hA').textContent=rk(avg);
+}
+
+function setSc(pct){
+  SC=pct;
+  [60,62,65].forEach(p=>{$('sb'+p).classList.toggle('on',p===SC);$('p'+p).classList.toggle('on',p===SC);});
+  updHd();rList();setRk(RK);
+  if(SEL)rDetail(SEL);
+}
+
+function doSrch(){
+  const v=$('sI').value.trim().toLowerCase();
+  const ci=$('fC').value,to=$('fT').value;
+  FIL=ALL.filter(s=>{
+    const mq=!v||s.name.toLowerCase().includes(v)||s.addr.toLowerCase().includes(v)||s.town.includes(v)||s.id.includes(v);
+    return mq&&(!ci||s.city===ci)&&(!to||s.town===to);
+  });
+  $('sCnt').textContent=FIL.length.toLocaleString();
+  rList();
+}
+
+function onCC(){
+  const ci=$('fC').value,tf=$('fT');
+  tf.innerHTML='<option value="">全部鄉鎮</option>';
+  if(ci){[...new Set(ALL.filter(s=>s.city===ci).map(s=>s.town))].sort().forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;tf.appendChild(o);});}
+  doSrch();
+}
+
+function setSort(m){SO=m;$('srR').classList.toggle('on',m==='rev');$('srN').classList.toggle('on',m==='name');rList();}
+
+function rList(){
+  const rk2='rev'+SC;
+  let s=[...FIL];
+  SO==='rev'?s.sort((a,b)=>(b[rk2]||0)-(a[rk2]||0)):s.sort((a,b)=>a.name.localeCompare(b.name,'zh-TW'));
+  const N=200,d=s.slice(0,N);
+  $('SL').innerHTML=d.map((x,i)=>{
+    const rev=x[rk2]||0,isZP=(x.cat||0)+(x.liv||0)+(x.ins||0)+(x.tra||0)===0;
+    const oc=SEL&&SEL.id===x.id?' on':'',zc=isZP?' zp':'';
+    return `<div class="si${oc}${zc}" onclick="sel('${x.id}')"><div class="sirk">${i+1}</div><div class="sifo"><div class="sinm">${x.name}</div><div class="silc">${x.city} ${x.town}</div></div>${isZP?'<div class="dot"></div>':''}` +
+      `<div class="sirv"><div class="sirvv">${rm(rev)}<span style="font-size:.58rem;font-weight:400">萬</span></div><div class="sirvu">/月</div></div></div>`;
+  }).join('');
+  if(s.length>N)$('SL').innerHTML+=`<div class="mhint">僅顯示前 ${N} 筆，請縮小搜尋</div>`;
+  $('sCnt').textContent=FIL.length.toLocaleString();
+}
+
+function sel(id){SEL=ALL.find(s=>s.id===id);rList();rDetail(SEL);}
+
+function rDetail(s){
+  if(!s)return;
+  $('dE').style.display='none';$('dC').style.display='block';$('mR').style.display='grid';
+  const rev=s['rev'+SC]||0,isZP=(s.cat||0)+(s.liv||0)+(s.ins||0)+(s.tra||0)===0;
+  $('dN').textContent=s.name;$('dID').textContent='門市 ID：'+s.id;$('dAD').textContent='📍 '+s.addr;
+  $('dZB').style.display=isZP?'block':'none';$('dSC').textContent=SC+'%';
+  updateMapMarker(s).catch(()=>{});
+  $('dRM').textContent=rm(rev);
+  const lo=s.ciLo||0,hi=s.ciHi||0;
+  $('dCL').textContent='下限 '+rk(lo);$('dCH').textContent=rk(hi)+' 上限';$('dCR').textContent=rk(lo)+' ～ '+rk(hi);
+  const mx=MAX_REV||1;
+  const lp=Math.min((lo/mx*100),100).toFixed(1),hp=Math.min((hi/mx*100),100).toFixed(1);
+  $('dCF').style.left=lp+'%';$('dCF').style.width=Math.max(hp-lp,2)+'%';
+  [60,62,65].forEach(p=>{$('p'+p+'v').textContent=rm(s['rev'+p]||0)+' 萬';$('p'+p).classList.toggle('on',p===SC);});
+  $('iPop').textContent=(s.pop||0).toLocaleString();$('iComp').textContent=s.comp||0;
+  $('iRent').textContent=(s.rent||0).toFixed(0);$('iRFb').textContent=s.rentFb?'(縣市回退)':'';
+  $('iCat').textContent=s.cat||0;$('iTra').textContent=s.tra||0;$('iOwn').textContent=s.own||0;
+  $('sL1').textContent=(s.l1||0).toFixed(2);$('sL2').textContent=(s.l2||0).toFixed(4);$('sCB').textContent=(s.score||0).toFixed(3);
+  $('map').classList.add('map-active');
+  $('dC').classList.remove('fu');void $('dC').offsetWidth;$('dC').classList.add('fu');
+}
+
+function rL1(){
+  const mx=Math.max(...L1.map(f=>Math.abs(f.v)));
+  $('l1F').innerHTML=L1.map(f=>{const pct=Math.abs(f.v)/mx*100,cl=f.v>0?'#8b5cf6':'#ef4444';
+    return `<div class="fr"><div class="fn">${f.n}</div><div class="fbw"><div class="fb" style="width:${pct}%;background:${cl};opacity:${f.v<0?.7:1}"></div></div><div class="fv" style="color:${cl}">${f.v>0?'+':''}${f.v.toFixed(3)}</div></div>`;}).join('');
+}
+
+function rL2(){
+  const mp=Math.max(...L2.map(f=>f.p)),me=Math.max(...L2.map(f=>f.e));
+  $('l2F').innerHTML=L2.map(f=>`<div class="fr" style="margin-bottom:.45rem"><div class="fn">${f.n}</div><div style="flex:1;display:flex;flex-direction:column;gap:2px">` +
+    `<div class="fbw"><div class="fb" style="width:${f.p/mp*100}%;background:#8b5cf6"></div></div>` +
+    `<div class="fbw"><div class="fb" style="width:${f.e/me*100}%;background:#06b6d4"></div></div></div>` +
+    `<div style="font-size:.6rem;text-align:right;min-width:38px"><div style="color:#8b5cf6">${f.p.toFixed(3)}</div><div style="color:#06b6d4">${f.e.toFixed(3)}</div></div></div>`).join('') +
+    '<div style="font-size:.62rem;color:var(--tm);display:flex;gap:.75rem;margin-top:.3rem"><span><span style=\'color:#8b5cf6\'>■</span> PCA</span><span><span style=\'color:#06b6d4\'>■</span> 熵權法</span></div>';
+}
+
+function rZP(ZP){
+  $('zCnt').textContent='共 '+ZP.length+' 家';
+  $('ZL').innerHTML=ZP.map(s=>{
+    const name=s.storeName||'',addr=(s.addr||'').replace(/'/g,"\\'");
+    return `<div class="zpit" onclick="sel('${s.storeId}')"><div style="flex:1;min-width:0"><div class="zpinm">${name}</div><div class="zpilc">${s.city} ${s.town}</div></div>` +
+      `<div class="zpipop">人口 ${s.population}</div>` +
+      `<button class="zprbtn" onclick="event.stopPropagation();zpR('${name}','${addr}')">核對</button></div>`;
+  }).join('');
+}
+
+function zpR(name,addr){alert('【Zero POI 核對清單】\n\n門市：'+name+'\n地址：'+addr+'\n\n核對項目：\n1. 地址是否正確？\n2. 周邊確實無 POI？\n3. 是否為廠區或特殊場所？');}
+
+function setRk(m){
+  RK=m;$('rtT').classList.toggle('on',m==='top');$('rtB').classList.toggle('on',m==='bot');
+  const rk2='rev'+SC,sorted=[...ALL].sort((a,b)=>(b[rk2]||0)-(a[rk2]||0));
+  const items=m==='top'?sorted.slice(0,5):sorted.slice(-5).reverse();
+  $('RL').innerHTML=items.map((s,i)=>{const rev=s[rk2]||0,cl=m==='top'?'t':'b',num=m==='top'?'#'+(i+1):'#'+(ALL.length-i);
+    return `<div class="ri" onclick="sel('${s.id}')"><div class="rinum ${cl}">${num}</div><div class="rifo"><div class="rinm">${s.name}</div><div class="rict">${s.city} ${s.town}</div></div><div class="rirv ${cl}">${rm(rev)} 萬</div></div>`;}).join('');
+}
+
+let map, mapMarker;
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiYmlsbHl5ZW4iLCJhIjoiY21zOGVnb2RqMGRkOTJ3b2syMTQ3OWxuNCJ9.g894FD6bkYQCykvhSfAH8Q';
+const geocodeCache = {};
+
+async function ensureMap(){
+  if(map || !MAPBOX_TOKEN) return;
+  if(typeof mapboxgl === 'undefined'){
+    console.warn('Mapbox GL JS 未能載入（CDN 被封鎖或離線），地圖功能停用');
+    return;
+  }
+  mapboxgl.accessToken = MAPBOX_TOKEN;
+  map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v11',
+    center: [121.6, 23.7],
+    zoom: 7.3,
+    pitch: 0,
+  });
+  map.addControl(new mapboxgl.NavigationControl({showCompass:true, showZoom:true}), 'top-right');
+  map.on('load', () => map.resize());
+  window.addEventListener('resize', () => map && map.resize());
+  $('map').classList.add('map-active');
+}
+
+async function geocodeAddress(addr){
+  if(!MAPBOX_TOKEN) return null;
+  if(geocodeCache[addr]) return geocodeCache[addr];
+  const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(addr)}.json?access_token=${MAPBOX_TOKEN}&limit=1&country=tw`);
+  if(!res.ok) return null;
+  const data = await res.json();
+  const coords = data.features?.[0]?.center || null;
+  geocodeCache[addr] = coords;
+  return coords;
+}
+
+async function updateMapMarker(s){
+  await ensureMap();
+  if(!map) return;
+  let coords = s.lnglat;
+  if(!coords) coords = await geocodeAddress(s.addr);
+  if(!coords) return;
+  s.lnglat = coords;
+  map.flyTo({center: coords, zoom: 13});
+  if(mapMarker) mapMarker.remove();
+  mapMarker = new mapboxgl.Marker({color: '#ef4444'})
+    .setLngLat(coords)
+    .setPopup(new mapboxgl.Popup({offset: 25}).setHTML(`<strong>${s.name}</strong><div style="font-size:.85rem;margin-top:.3rem;line-height:1.3;">${s.addr}</div>`))
+    .addTo(map);
+  mapMarker.togglePopup();
+}
+
+// Boot
+init().catch(err => console.error(err));
+</script>
+</body>
+</html>
