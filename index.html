@@ -36,6 +36,9 @@
     .scb:hover:not(.on){color:#fff;background:rgba(255,255,255,.06);}
     .hst{margin-left:auto;display:flex;gap:1.5rem;}
     .hsv{font-size:1.05rem;font-weight:700;color:var(--g);}
+    .hact{display:flex;gap:.5rem;}
+    .habtn{padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:rgba(255,255,255,.75);font-size:.74rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;}
+    .habtn:hover{color:#fff;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.28);}
     .hsl{font-size:.62rem;color:rgba(255,255,255,.55);margin-top:1px;}
     .main{max-width:1700px;margin:0 auto;padding:1.25rem 2rem;display:grid;grid-template-columns:370px 1fr;gap:1rem;min-height:calc(100vh - 62px);}
     .left{display:flex;flex-direction:column;gap:.9rem;}
@@ -205,6 +208,11 @@
       <div><div class="hsv" id="hS">—</div><div class="hsl">收錄門市</div></div>
       <div><div class="hsv" id="hT">—</div><div class="hsl">目標月總營收</div></div>
       <div><div class="hsv" id="hA">—</div><div class="hsl">平均月營收</div></div>
+    </div>
+    <div class="hdiv"></div>
+    <div class="hact">
+      <button class="habtn" onclick="openAiCs()">🤖 AI 客服</button>
+      <button class="habtn" onclick="openImport()">📥 新資料匯入</button>
     </div>
   </div>
 </header>
@@ -488,6 +496,9 @@ function rZP(ZP){
 }
 
 function zpR(name,addr){alert('【Zero POI 核對清單】\n\n門市：'+name+'\n地址：'+addr+'\n\n核對項目：\n1. 地址是否正確？\n2. 周邊確實無 POI？\n3. 是否為廠區或特殊場所？');}
+
+function openAiCs(){alert('🤖 AI 客服\n\n功能開發中——之後會串接 RAG（檢索增強生成），讓使用者能直接問「這間門市為什麼估這個數字」，由模型檢索特徵資料＋Bootstrap 區間後生成回答。');}
+function openImport(){alert('📥 新資料匯入\n\n功能開發中——之後會支援上傳新的門市/POI 資料（CSV），重新跑分配演算法並更新看板顯示。');}
 
 function setRk(m){
   RK=m;$('rtT').classList.toggle('on',m==='top');$('rtB').classList.toggle('on',m==='bot');
