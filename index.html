@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" rel="stylesheet" />
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
+  <script src="mapbox-config.js"></script>
   <style>
     :root{--bg:#f7f1e6;--bgc:#f2eadc;--bgh:#e8dfd1;--b:rgba(15,23,42,.08);--bb:rgba(15,23,42,.12);--ac:#3b82f6;--cy:#06b6d4;--pu:#8b5cf6;--gr:#10b981;--ye:#f59e0b;--re:#ef4444;--or:#f97316;--tx:#0f172a;--tm:#475569;--td:#64748b;--g:#00a650;--g-ld:#00a650;--g-hd:#00a650;}
     *{margin:0;padding:0;box-sizing:border-box;}
@@ -27,15 +28,15 @@
     .hd-badge-7{position:absolute;top:0;left:0;right:0;height:66%;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;font-style:italic;color:#fff;line-height:1;font-family:Georgia,"Times New Roman",serif;}
     .hd-badge-ev{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:7px;font-weight:700;font-style:italic;letter-spacing:.2px;color:#fff;font-family:Georgia,"Times New Roman",serif;}
     .hd-t h1{font-size:1rem;font-weight:700;color:#fff;}
-    .hd-t p{font-size:.65rem;color:var(--tm);}
+    .hd-t p{font-size:.65rem;color:rgba(255,255,255,.55);}
     .hdiv{width:1px;height:28px;background:var(--b);}
     .sct{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:9px;padding:3px;gap:2px;}
-    .scb{padding:4px 13px;border-radius:6px;border:none;background:transparent;color:var(--tm);font-size:.76rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
+    .scb{padding:4px 13px;border-radius:6px;border:none;background:transparent;color:rgba(255,255,255,.55);font-size:.76rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
     .scb.on{background:var(--ac);color:#fff;box-shadow:0 2px 12px rgba(59,130,246,.4);}
-    .scb:hover:not(.on){color:var(--tx);background:rgba(255,255,255,.06);}
+    .scb:hover:not(.on){color:#fff;background:rgba(255,255,255,.06);}
     .hst{margin-left:auto;display:flex;gap:1.5rem;}
     .hsv{font-size:1.05rem;font-weight:700;color:var(--g);}
-    .hsl{font-size:.62rem;color:var(--tm);margin-top:1px;}
+    .hsl{font-size:.62rem;color:rgba(255,255,255,.55);margin-top:1px;}
     .main{max-width:1700px;margin:0 auto;padding:1.25rem 2rem;display:grid;grid-template-columns:370px 1fr;gap:1rem;min-height:calc(100vh - 62px);}
     .left{display:flex;flex-direction:column;gap:.9rem;}
     .cd{background:var(--bgc);border:1px solid var(--b);border-radius:14px;}
@@ -193,7 +194,7 @@
       <div class="hd-t"><h1>門市月營收 AI 智慧回推系統</h1><p>全台 7,313 間門市 · Ridge × PCA 雙層架構 · v8</p></div>
     </div>
     <div class="hdiv"></div>
-    <span style="font-size:.68rem;color:var(--tm)">台灣本業份額情境</span>
+    <span style="font-size:.68rem;color:rgba(255,255,255,.55)">台灣本業份額情境</span>
     <div class="sct">
       <button class="scb" id="sb60" onclick="setSc(60)">60%</button>
       <button class="scb on" id="sb62" onclick="setSc(62)">62% ★</button>
@@ -497,7 +498,7 @@ function setRk(m){
 }
 
 let map, mapMarker;
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiYmlsbHl5ZW4iLCJhIjoiY21zOGVnb2RqMGRkOTJ3b2syMTQ3OWxuNCJ9.g894FD6bkYQCykvhSfAH8Q';
+const MAPBOX_TOKEN = window.MAPBOX_TOKEN || '';
 const geocodeCache = {};
 
 async function ensureMap(){
