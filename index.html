@@ -48,6 +48,19 @@
     .ftr{max-width:1700px;margin:0 auto;padding:1.5rem 2rem 2.5rem;display:flex;justify-content:center;}
     .ftr .habtn{padding:9px 20px;border-radius:8px;border:1px solid var(--bb);background:var(--bgc);color:var(--tx);font-size:.8rem;}
     .ftr .habtn:hover{background:var(--bgh);border-color:var(--ac);color:var(--tx);}
+    .cspanel{position:fixed;bottom:1.5rem;right:1.5rem;width:340px;max-width:calc(100vw - 2rem);height:440px;max-height:calc(100vh - 3rem);background:var(--bgc);border:1px solid var(--bb);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;z-index:200;overflow:hidden;}
+    .cshd{background:linear-gradient(135deg,#09132a,#0e2040,#09132a);color:#fff;padding:.8rem 1rem;display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:.85rem;}
+    .csx{background:transparent;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:.9rem;}
+    .csx:hover{color:#fff;}
+    .csmsgs{flex:1;overflow-y:auto;padding:.8rem;display:flex;flex-direction:column;gap:.6rem;}
+    .csmsg{font-size:.8rem;line-height:1.5;padding:.5rem .7rem;border-radius:10px;max-width:88%;white-space:pre-wrap;}
+    .csbot{background:var(--bgh);color:var(--tx);align-self:flex-start;border-bottom-left-radius:2px;}
+    .csuser{background:var(--ac);color:#fff;align-self:flex-end;border-bottom-right-radius:2px;}
+    .cssrc{font-size:.65rem;color:var(--tm);margin-top:.3rem;}
+    .csin{display:flex;gap:.4rem;padding:.6rem;border-top:1px solid var(--bb);}
+    .csin input{flex:1;padding:.5rem .6rem;border-radius:8px;border:1px solid var(--bb);background:var(--bg);color:var(--tx);font-size:.8rem;font-family:inherit;}
+    .csin button{padding:.5rem .9rem;border-radius:8px;border:none;background:var(--ac);color:#fff;font-size:.8rem;font-weight:600;cursor:pointer;}
+    .csin button:disabled{opacity:.5;cursor:not-allowed;}
     .hsl{font-size:.62rem;color:rgba(255,255,255,.55);margin-top:1px;}
     .main{max-width:1700px;margin:0 auto;padding:1.25rem 2rem;display:grid;grid-template-columns:370px 1fr;gap:1rem;min-height:calc(100vh - 62px);}
     .left{display:flex;flex-direction:column;gap:.9rem;}
@@ -347,6 +360,20 @@
   <span id="importStatus" style="margin-left:.6rem;font-size:.75rem;color:var(--tm)"></span>
 </footer>
 
+<div id="csPanel" class="cspanel" style="display:none">
+  <div class="cshd">
+    <span>🤖 AI 客服</span>
+    <button class="csx" onclick="closeAiCs()">✕</button>
+  </div>
+  <div id="csMsgs" class="csmsgs">
+    <div class="csmsg csbot">你好，我是 AI 客服，可以問我關於這套門市營收估算模型的問題（例如：為什麼份額用 62%？資料怎麼驗證的？）。</div>
+  </div>
+  <div class="csin">
+    <input id="csInput" type="text" placeholder="輸入問題…" onkeydown="if(event.key==='Enter')sendAiCs()">
+    <button onclick="sendAiCs()">送出</button>
+  </div>
+</div>
+
 <script>
 const L1=[{n:'自家門市',v:.234},{n:'競爭門市',v:.145},{n:'餐飲POI',v:-.124},{n:'機構POI',v:.090},{n:'生活POI',v:-.039},{n:'戶數',v:.016},{n:'交通POI',v:-.009},{n:'人口',v:-.005}];
 const L2=[{n:'人口',p:.376,e:.037},{n:'戶數',p:.377,e:.049},{n:'餐飲POI',p:.228,e:.065},{n:'生活POI',p:.223,e:.300},{n:'機構POI',p:.300,e:.068},{n:'交通POI',p:.230,e:.229},{n:'競爭門市',p:.299,e:.131},{n:'自家門市',p:.262,e:.120}];
@@ -515,7 +542,56 @@ function rZP(ZP){
 
 function zpR(name,addr){alert('【Zero POI 核對清單】\n\n門市：'+name+'\n地址：'+addr+'\n\n核對項目：\n1. 地址是否正確？\n2. 周邊確實無 POI？\n3. 是否為廠區或特殊場所？');}
 
-function openAiCs(){alert('🤖 AI 客服\n\n功能開發中——之後會串接 RAG（檢索增強生成），讓使用者能直接問「這間門市為什麼估這個數字」，由模型檢索特徵資料＋Bootstrap 區間後生成回答。');}
+const AI_CS_API = 'https://seven11-rag-backend.onrender.com/api/ask';
+
+function openAiCs(){ $('csPanel').style.display='flex'; $('csInput').focus(); }
+function closeAiCs(){ $('csPanel').style.display='none'; }
+
+function csAddMsg(text, who, sources){
+  const box = $('csMsgs');
+  const el = document.createElement('div');
+  el.className = 'csmsg ' + (who==='user'?'csuser':'csbot');
+  el.textContent = text;
+  if(sources && sources.length){
+    const s = document.createElement('div');
+    s.className = 'cssrc';
+    s.textContent = '來源：' + sources.join('、');
+    el.appendChild(s);
+  }
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+  return el;
+}
+
+async function sendAiCs(){
+  const input = $('csInput');
+  const q = input.value.trim();
+  if(!q) return;
+  input.value = '';
+  csAddMsg(q, 'user');
+  const loadingEl = csAddMsg('思考中…', 'bot');
+  input.disabled = true;
+  try{
+    const res = await fetch(AI_CS_API, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({question: q})
+    });
+    const data = await res.json();
+    loadingEl.textContent = data.answer || '（沒有取得回答）';
+    if(data.sources && data.sources.length){
+      const s = document.createElement('div');
+      s.className = 'cssrc';
+      s.textContent = '來源：' + data.sources.join('、');
+      loadingEl.appendChild(s);
+    }
+  }catch(err){
+    loadingEl.textContent = '⚠️ 連線失敗（後端可能正在喚醒中，免費方案閒置後首次請求約需 30-50 秒，請稍後再試一次）。';
+  }finally{
+    input.disabled = false;
+    input.focus();
+  }
+}
 const firebaseConfig = {
   apiKey: "AIzaSyCLFDinA6ukOKZKIcnRrfBqgzrhWKRvz1Q",
   authDomain: "revenue-dashboard-7b387.firebaseapp.com",
