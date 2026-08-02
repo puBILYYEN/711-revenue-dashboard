@@ -27,8 +27,12 @@
     .hd-badge{width:40px;height:40px;border-radius:8px;position:relative;overflow:hidden;background:linear-gradient(180deg,#ff8200 0%,#ff8200 14%,#ed1c24 14%,#ed1c24 66%,var(--g-hd) 66%,var(--g-hd) 100%);box-shadow:0 0 18px rgba(0,166,80,.4);}
     .hd-badge-7{position:absolute;top:0;left:0;right:0;height:66%;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;font-style:italic;color:#fff;line-height:1;font-family:Georgia,"Times New Roman",serif;}
     .hd-badge-ev{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:7px;font-weight:700;font-style:italic;letter-spacing:.2px;color:#fff;font-family:Georgia,"Times New Roman",serif;}
-    .hd-t h1{font-size:1rem;font-weight:700;color:#fff;}
+    .hd-t h1{font-size:1rem;font-weight:700;color:#fff;white-space:nowrap;}
+    .hd-t{flex-shrink:0;}
+    .hd-logo{flex-shrink:0;}
     .hd-t p{font-size:.65rem;color:rgba(255,255,255,.55);}
+    .verSel{margin-left:.6rem;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:rgba(255,255,255,.75);font-size:.7rem;font-weight:600;cursor:pointer;font-family:inherit;}
+    .verSel:hover{color:#fff;background:rgba(255,255,255,.1);}
     .hdiv{width:1px;height:28px;background:var(--b);}
     .sct{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:9px;padding:3px;gap:2px;}
     .scb{padding:4px 13px;border-radius:6px;border:none;background:transparent;color:rgba(255,255,255,.55);font-size:.76rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
@@ -39,6 +43,9 @@
     .hact{display:flex;gap:.5rem;}
     .habtn{padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:rgba(255,255,255,.75);font-size:.74rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;}
     .habtn:hover{color:#fff;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.28);}
+    .ftr{max-width:1700px;margin:0 auto;padding:1.5rem 2rem 2.5rem;display:flex;justify-content:center;}
+    .ftr .habtn{padding:9px 20px;border-radius:8px;border:1px solid var(--bb);background:var(--bgc);color:var(--tx);font-size:.8rem;}
+    .ftr .habtn:hover{background:var(--bgh);border-color:var(--ac);color:var(--tx);}
     .hsl{font-size:.62rem;color:rgba(255,255,255,.55);margin-top:1px;}
     .main{max-width:1700px;margin:0 auto;padding:1.25rem 2rem;display:grid;grid-template-columns:370px 1fr;gap:1rem;min-height:calc(100vh - 62px);}
     .left{display:flex;flex-direction:column;gap:.9rem;}
@@ -195,6 +202,10 @@
     <div class="hd-logo">
       <div class="hd-badge"><div class="hd-badge-7">7</div><div class="hd-badge-ev">eleven</div></div>
       <div class="hd-t"><h1>門市月營收 AI 智慧回推系統</h1><p>全台 7,313 間門市 · Ridge × PCA 雙層架構 · v8</p></div>
+      <select class="verSel" id="verSel" onchange="switchVer(this)">
+        <option value="delin" selected>德麟版</option>
+        <option value="leader">組長版</option>
+      </select>
     </div>
     <div class="hdiv"></div>
     <span style="font-size:.68rem;color:rgba(255,255,255,.55)">台灣本業份額情境</span>
@@ -212,7 +223,6 @@
     <div class="hdiv"></div>
     <div class="hact">
       <button class="habtn" onclick="openAiCs()">🤖 AI 客服</button>
-      <button class="habtn" onclick="openImport()">📥 新資料匯入</button>
     </div>
   </div>
 </header>
@@ -328,6 +338,10 @@
     </div>
   </div>
 </div>
+
+<footer class="ftr">
+  <button class="habtn" onclick="openImport()">📥 新資料匯入</button>
+</footer>
 
 <script>
 const L1=[{n:'自家門市',v:.234},{n:'競爭門市',v:.145},{n:'餐飲POI',v:-.124},{n:'機構POI',v:.090},{n:'生活POI',v:-.039},{n:'戶數',v:.016},{n:'交通POI',v:-.009},{n:'人口',v:-.005}];
@@ -499,6 +513,12 @@ function zpR(name,addr){alert('【Zero POI 核對清單】\n\n門市：'+name+'\
 
 function openAiCs(){alert('🤖 AI 客服\n\n功能開發中——之後會串接 RAG（檢索增強生成），讓使用者能直接問「這間門市為什麼估這個數字」，由模型檢索特徵資料＋Bootstrap 區間後生成回答。');}
 function openImport(){alert('📥 新資料匯入\n\n功能開發中——之後會支援上傳新的門市/POI 資料（CSV），重新跑分配演算法並更新看板顯示。');}
+function switchVer(sel){
+  if(sel.value==='leader'){
+    alert('組長版尚未上線，敬請期待。');
+    sel.value='delin';
+  }
+}
 
 function setRk(m){
   RK=m;$('rtT').classList.toggle('on',m==='top');$('rtB').classList.toggle('on',m==='bot');
