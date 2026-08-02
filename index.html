@@ -603,23 +603,45 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+const VALIDATE_API = 'https://seven11-rag-backend.onrender.com/api/validate_csv';
+
 function openImport(){ $('importFile').click(); }
 
 function handleImportFile(file){
   if(!file) return;
   const st = $('importStatus');
-  st.textContent = '上傳中…';
+  st.textContent = '⏳ AI 正在檢查資料品質…（免費後端閒置喚醒可能要30-50秒）';
   const reader = new FileReader();
   reader.onload = async (e) => {
+    const content = e.target.result;
+    let status = 'pending_review', report = '', stats = null;
+    try{
+      const vres = await fetch(VALIDATE_API, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({filename: file.name, content})
+      });
+      const vdata = await vres.json();
+      status = vdata.status || 'pending_review';
+      report = vdata.report || '';
+      stats = vdata.stats || null;
+    }catch(err){
+      console.error('AI檢查失敗', err);
+      report = '（AI 品質檢查失敗，僅儲存原始資料，未經檢查）';
+    }
+    st.textContent = '上傳中…';
     try{
       await db.collection('raw_imports').add({
         filename: file.name,
         size: file.size,
-        content: e.target.result,
+        content,
         uploadedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        status: 'pending_review'
+        status,
+        aiReport: report,
+        stats: stats ? JSON.stringify(stats) : ''
       });
-      st.textContent = `✅ ${file.name} 已存入待處理清單`;
+      const icon = status==='clean' ? '✅' : (status==='needs_attention' ? '⚠️' : '📋');
+      st.innerHTML = `${icon} ${file.name} 已存入，AI 檢查結果：<br><span style="white-space:pre-wrap">${report}</span>`;
     }catch(err){
       console.error(err);
       st.textContent = '❌ 上傳失敗：' + err.message;
