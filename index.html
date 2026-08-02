@@ -62,7 +62,80 @@
     .csin button{padding:.5rem .9rem;border-radius:8px;border:none;background:var(--ac);color:#fff;font-size:.8rem;font-weight:600;cursor:pointer;}
     .csin button:disabled{opacity:.5;cursor:not-allowed;}
     .hsl{font-size:.62rem;color:rgba(255,255,255,.55);margin-top:1px;}
-    .main{max-width:1700px;margin:0 auto;padding:1.25rem 2rem;display:grid;grid-template-columns:370px 1fr;gap:1rem;min-height:calc(100vh - 62px);}
+    .main{max-width:1700px;margin:0 auto;padding:1.25rem 2rem;display:grid;grid-template-columns:370px 1fr;gap:1rem;min-height:calc(100vh - 62px);align-content:start;}
+    .tabbar{grid-column:1/-1;display:flex;gap:.4rem;border-bottom:1px solid var(--bb);}
+    .tbtn{padding:.65rem 1.1rem;border:none;background:transparent;color:var(--tm);font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+    .tbtn:hover{color:var(--tx);}
+    .tbtn.on{color:var(--ac);border-bottom-color:var(--ac);}
+    .tabview{grid-column:1/-1;}
+    .mck{padding:1.3rem 1.4rem;}
+    .mckttl{font-size:.9rem;font-weight:700;color:var(--tx);margin-bottom:.3rem;}
+    .mcksub{font-size:.7rem;color:var(--tm);line-height:1.6;margin-bottom:1.1rem;}
+    .mckgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;margin-bottom:1rem;}
+    .mckcard{background:linear-gradient(135deg,#09132a,#0e2040,#09132a);border-radius:12px;padding:1rem 1.1rem;}
+    .mckcard.hl{border:1px solid rgba(16,185,129,.4);}
+    .mckstep{font-size:.6rem;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem;}
+    .mckq{font-size:.74rem;color:#fff;font-weight:600;line-height:1.5;margin-bottom:.6rem;min-height:2.2em;}
+    .mcknum{font-size:1.15rem;font-weight:900;margin-bottom:.5rem;}
+    .mcknum.g{color:var(--g);}
+    .mcknum.r{color:var(--or);}
+    .mckdesc{font-size:.66rem;color:rgba(255,255,255,.6);line-height:1.6;}
+    .mckdesc code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;color:#67e8f9;font-family:monospace;}
+    .mckcon{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:.9rem 1.1rem;font-size:.72rem;color:var(--tm);line-height:1.7;}
+    .mckcon b{color:var(--tx);}
+    .chartcard{background:linear-gradient(135deg,#09132a,#0e2040,#09132a);border-radius:12px;padding:1rem 1.1rem 1.2rem;margin-bottom:1.1rem;}
+    .charthd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem;}
+    .chartttl{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.75);}
+    .chartbtn{padding:5px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:rgba(255,255,255,.85);font-size:.68rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+    .chartbtn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);}
+    .chartbtn.on{background:rgba(59,130,246,.22);border-color:#3b82f6;color:#fff;}
+    .chartlegend{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem;margin-bottom:.5rem;font-size:.66rem;color:rgba(255,255,255,.6);}
+    .lgitem{display:flex;align-items:center;gap:.35rem;}
+    .lgdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+    .lgstat{margin-left:auto;color:rgba(255,255,255,.4);}
+    .chartwrap{position:relative;}
+    .chartwrap svg{width:100%;height:auto;display:block;overflow:visible;}
+    .chartaxis{font-size:9px;fill:rgba(255,255,255,.4);}
+    .chartgrid{stroke:rgba(255,255,255,.08);stroke-width:1;}
+    .chartxlbl{font-size:9.5px;fill:rgba(255,255,255,.35);}
+    .charttip{position:absolute;pointer-events:none;background:#0b1220;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:.4rem .6rem;font-size:.66rem;color:#fff;line-height:1.6;white-space:nowrap;transform:translate(-50%,-115%);z-index:5;}
+    .charttip .tprow{display:flex;align-items:center;gap:.4rem;}
+    .charttip .tpdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+    .boxnote{margin-top:.4rem;font-size:.66rem;color:rgba(255,255,255,.55);line-height:1.7;}
+    .boxnote b{color:#fff;}
+    .fml{padding:1.2rem 1.3rem;}
+    .fmlttl{font-size:.85rem;font-weight:700;color:var(--tx);margin-bottom:.3rem;}
+    .fmlsub{font-size:.68rem;color:var(--tm);line-height:1.55;margin-bottom:1rem;}
+    .fmlwrap{overflow-x:auto;}
+    .fmltbl{width:100%;min-width:640px;border-collapse:separate;border-spacing:3px;background:linear-gradient(135deg,#09132a,#0e2040,#09132a);border-radius:12px;padding:.9rem .4rem;table-layout:fixed;}
+    .fterm{text-align:center;vertical-align:top;font-size:.74rem;font-weight:700;color:#fff;padding:.3rem;}
+    .fterm .fsub{font-size:.65em;vertical-align:sub;opacity:.7;}
+    .fdesc{font-size:.6rem;font-weight:400;color:rgba(255,255,255,.5);margin-top:.45rem;line-height:1.4;}
+    .fop{width:28px;text-align:center;vertical-align:middle;font-size:1.15rem;font-weight:900;color:var(--g);}
+    .fresult{color:var(--g);}
+    .tick{padding:1.1rem 1.2rem;}
+    .tickhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem;}
+    .tickttl{font-size:.85rem;font-weight:700;color:var(--tx);}
+    .tickauto{padding:4px 10px;border-radius:7px;border:1px solid var(--bb);background:transparent;color:var(--tm);font-size:.68rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;}
+    .tickauto:hover{border-color:var(--ac);color:var(--ac);}
+    .tickauto.on{background:var(--ac);color:#fff;border-color:var(--ac);}
+    .tickwrap{overflow-x:auto;border-radius:10px;background:#0b1220;}
+    .ticktbl{width:100%;min-width:660px;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+    .ticktbl th{padding:.55rem .6rem;font-size:.64rem;font-weight:700;color:rgba(255,255,255,.45);text-align:right;border-bottom:1px solid rgba(255,255,255,.08);transition:color .2s;}
+    .ticktbl th.tkrk,.ticktbl th.tknm,.ticktbl th.tkloc{text-align:left;}
+    .ticktbl th.tkval{color:var(--g);}
+    .ticktbl td{padding:.5rem .6rem;font-size:.75rem;color:rgba(255,255,255,.85);text-align:right;border-bottom:1px solid rgba(255,255,255,.05);white-space:nowrap;}
+    .ticktbl td.tkrk,.ticktbl td.tknm,.ticktbl td.tkloc{text-align:left;color:rgba(255,255,255,.55);}
+    .ticktbl td.tknm{color:#fff;font-weight:600;}
+    .ticktbl td.tknum{color:rgba(255,255,255,.75);}
+    .ticktbl td.tkl1{color:#c4b5fd;}
+    .ticktbl td.tkl2{color:#67e8f9;}
+    .ticktbl td.tkcb{color:#fbbf24;font-weight:700;}
+    .ticktbl td.tktrev{color:#fff;font-weight:700;}
+    .ticktbl td.tkval{color:var(--g);font-weight:700;background:rgba(16,185,129,.08);}
+    .ticktbl tr:hover td{background:rgba(255,255,255,.03);}
+    @keyframes tkflash{0%{background:rgba(16,185,129,.4);}100%{background:rgba(16,185,129,.08);}}
+    .tkflash{animation:tkflash .7s ease;}
     .left{display:flex;flex-direction:column;gap:.9rem;}
     .cd{background:var(--bgc);border:1px solid var(--b);border-radius:14px;}
     .scard{padding:1rem;}
@@ -109,7 +182,12 @@
     .dnm{font-size:1.55rem;font-weight:900;color:var(--tx);line-height:1.1;}
     .did{font-size:.68rem;color:var(--tm);margin-top:2px;}
     .dadr{font-size:.74rem;color:var(--td);margin-top:4px;}
-    .zpb{background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.4);color:var(--or);font-size:.65rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+    .zpb{background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.4);color:var(--or);font-size:.65rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;cursor:pointer;transition:transform .15s,background .15s;}
+    .zpb:hover{background:rgba(249,115,22,.22);transform:scale(1.04);}
+    .rfbb{background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.4);color:var(--or);font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:10px;cursor:pointer;transition:background .15s;margin-left:2px;}
+    .rfbb:hover{background:rgba(249,115,22,.24);}
+    @keyframes cardflash{0%{box-shadow:0 0 0 3px rgba(249,115,22,.7);}100%{box-shadow:0 0 0 3px rgba(249,115,22,0);}}
+    .cd.flash{animation:cardflash 1.1s ease;}
     .rvb{background:linear-gradient(135deg,rgba(0,166,80,.07),rgba(6,182,212,.04));border:1px solid rgba(0,166,80,.18);border-radius:13px;padding:1.1rem 1.3rem;margin-bottom:1.1rem;}
     .rvlbl{font-size:.68rem;color:var(--tm);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem;}
     .rvmain{font-size:2.7rem;font-weight:900;color:var(--g);line-height:1;letter-spacing:-1px;}
@@ -172,7 +250,7 @@
     .ri{display:flex;align-items:center;gap:.55rem;padding:.45rem .5rem;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:all .15s;border-radius:5px;}
     .ri:hover{background:var(--bgh);}
     .ri:last-child{border-bottom:none;}
-    .rinum{font-size:.7rem;font-weight:700;width:20px;text-align:center;}
+    .rinum{font-size:.7rem;font-weight:700;min-width:34px;text-align:center;flex-shrink:0;white-space:nowrap;}
     .rinum.t{color:var(--ye);}
     .rinum.b{color:var(--re);}
     .rifo{flex:1;min-width:0;}
@@ -243,6 +321,13 @@
 </header>
 
 <div class="main">
+  <div class="tabbar">
+    <button class="tbtn on" data-view="overview" onclick="switchTab('overview')">📋 門市總覽</button>
+    <button class="tbtn" data-view="modelcheck" onclick="switchTab('modelcheck')">🔬 模型驗證</button>
+    <button class="tbtn" data-view="modelaudit" onclick="switchTab('modelaudit')">📊 模型考核</button>
+  </div>
+
+  <div id="viewOverview" style="display:contents">
   <div class="left">
     <div class="cd scard">
       <div class="slbl">🔍 門市搜尋</div>
@@ -276,7 +361,7 @@
         <div id="dC" style="display:none">
           <div class="dhd">
             <div><div class="dnm" id="dN"></div><div class="did" id="dID"></div><div class="dadr" id="dAD"></div></div>
-            <div id="dZB" style="display:none" class="zpb">⚠️ Zero POI 待核對</div>
+            <div id="dZB" style="display:none" class="zpb" onclick="scrollToPain('zpc')" title="點擊查看說明">⚠️ Zero POI 待核對</div>
           </div>
           <div class="rvb">
             <div class="rvlbl">估算月營收（<span id="dSC">62%</span> 份額情境）</div>
@@ -295,7 +380,7 @@
           <div class="ig">
             <div class="ic"><div class="icl">村里人口</div><div class="icv" id="iPop">—</div><div class="ics">人</div></div>
             <div class="ic"><div class="icl">競爭門市</div><div class="icv" id="iComp">—</div><div class="ics">家（附近）</div></div>
-            <div class="ic"><div class="icl">地區租金基準</div><div class="icv" id="iRent">—</div><div class="ics">元/坪 <span id="iRFb" style="color:var(--or)"></span></div></div>
+            <div class="ic"><div class="icl">地區租金基準</div><div class="icv" id="iRent">—</div><div class="ics">元/坪 <span id="iRFb" class="rfbb" style="display:none" title="這個鄉鎮沒有足夠的租金交易資料，改用縣市層級的平均值回退計算，不是這個鄉鎮自己的實際租金水準">縣市回退 ⓘ</span></div></div>
             <div class="ic"><div class="icl">餐飲 POI</div><div class="icv" id="iCat">—</div><div class="ics">個</div></div>
             <div class="ic"><div class="icl">交通 POI</div><div class="icv" id="iTra">—</div><div class="ics">個</div></div>
             <div class="ic"><div class="icl">自家門市</div><div class="icv" id="iOwn">—</div><div class="ics">家（同鄉鎮）</div></div>
@@ -308,6 +393,45 @@
             <div class="sci"><div class="scil">綜合分數</div><div class="sciv cb" id="sCB">—</div></div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="cd fml">
+      <div class="fmlttl">📐 預估營收怎麼算出來的</div>
+      <div class="fmlsub">比例分配的結構保證，不是靠事後調整湊出來的——分母是全體門市加總，換份額只是整體同比例縮放，不影響排序</div>
+      <div class="fmlwrap">
+        <table class="fmltbl">
+          <tr>
+            <td class="fterm">層一基準<span class="fsub">i</span><div class="fdesc">該門市所在鄉鎮<br>租金水準基準</div></td>
+            <td class="fop">×</td>
+            <td class="fterm">層二分數<span class="fsub">i</span><div class="fdesc">該門市相對其他<br>門市的強弱分數</div></td>
+            <td class="fop">÷</td>
+            <td class="fterm">Σ(層一基準×層二分數)<div class="fdesc">全體 7,313 家門市<br>加總（分母）</div></td>
+            <td class="fop">×</td>
+            <td class="fterm">台灣本業總營收<div class="fdesc" id="fmlTarget">189.84 億（62% 情境）</div></td>
+            <td class="fop">=</td>
+            <td class="fterm fresult">預估營收<span class="fsub">i</span><div class="fdesc">此門市最終顯示<br>的估計月營收</div></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="cd tick">
+      <div class="tickhd">
+        <span class="tickttl">📊 門市營收試算表（TOP 15，公式逐項拆解）</span>
+        <button class="tickauto" id="tickAuto" onclick="toggleAutoPlay()">▶ 自動輪播情境</button>
+      </div>
+      <div class="tickwrap">
+        <table class="ticktbl" id="tickTbl">
+          <thead>
+            <tr>
+              <th class="tkrk">#</th><th class="tknm">門市</th><th class="tkloc">地區</th>
+              <th class="tknum">層一基準ᵢ</th><th class="tknum">層二分數ᵢ</th><th class="tknum">綜合分數</th><th class="tknum">台灣本業總營收</th>
+              <th class="tkval" id="tkValHd">62%</th>
+            </tr>
+          </thead>
+          <tbody id="tickBody"></tbody>
+        </table>
       </div>
     </div>
 
@@ -328,8 +452,8 @@
       <div class="cd vp">
         <div class="vttl">✅ 合理性驗證結果</div>
         <div class="spb">
-          <div class="sprho">+0.219</div>
-          <div class="spinfo"><b>Spearman 相關係數</b><br>n = 7,225 筆 · p &lt; 0.001<br>方法：殘差法（控制人口）<br>採用為正式驗證結論</div>
+          <div class="sprho">+0.295</div>
+          <div class="spinfo"><b>Spearman 相關係數</b>（進階版）<br>n = 7,225 筆 · p &lt; 0.001<br>方法：殘差法（控制人口）<br>較初版 +0.219 提升 34.6%・新舊排序相關 0.969</div>
         </div>
         <div class="vnote">💡 <b>資訊防火牆</b>：所得中位數全程未進入模型訓練，僅於最終驗證階段對照方向合理性——確保驗證獨立性，避免循環論證。</div>
         <div class="vwarn">⚠️ Naive 人均法 Spearman = <span style="color:var(--re)">−0.235</span>（失真）：人口越多店越密，稀釋人均，非模型問題，已棄用。</div>
@@ -349,6 +473,122 @@
         <div class="zphd"><span style="font-size:1.1rem">⚠️</span><span class="zpttl">待人工核對：Zero POI 門市</span><span class="zpcnt" id="zCnt">共 0 家</span></div>
         <div class="zpnote">以下門市周邊 POI 資料為零，可能影響層二估算準確度，建議人工確認地址或補齊特徵。</div>
         <div class="zplist" id="ZL"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="viewModelcheck" class="tabview" style="display:none">
+    <div class="cd mck">
+      <div class="mckttl">🔬 PCA+熵權法 ≈ Ridge 迴歸：反覆驗證的模型方法紀錄</div>
+      <div class="mcksub">「層二」的替代模型能不能站得住腳，不能只算一次就採用——我們拿 7,313 筆真實資料做了多輪交叉驗證，逐步排除掉不夠準的假設，才鎖定目前的做法。</div>
+
+      <div class="chartcard">
+        <div class="charthd">
+          <div class="chartttl">120 家門市代表點・依實際層二分數由小到大排序（取自 7,313 筆真實資料）</div>
+          <button class="chartbtn" id="chartToggle" onclick="toggleRidgeLine()">+ 疊加 Ridge 迴歸估計值</button>
+        </div>
+        <div class="chartlegend" id="chartLegend" style="display:none">
+          <span class="lgitem"><span class="lgdot" style="background:#10b981"></span>PCA+熵權法（近似值）</span>
+          <span class="lgitem"><span class="lgdot" style="background:#3b82f6"></span>Ridge 迴歸（估計值）</span>
+          <span class="lgstat">交叉驗證 R²=0.9996・平均絕對誤差 0.0016</span>
+        </div>
+        <div class="chartwrap" id="chartWrap">
+          <svg viewBox="0 0 900 260" id="chartSvg"></svg>
+          <div class="charttip" id="chartTip" style="display:none"></div>
+        </div>
+      </div>
+
+      <div class="chartcard">
+        <div class="charthd">
+          <div class="chartttl">兩種方法的分數分布比較（PCA+熵權法 vs Ridge迴歸，全體 7,313 家門市，不是抽樣）</div>
+        </div>
+        <div class="chartwrap">
+          <svg viewBox="0 0 900 170" id="boxSvg"></svg>
+        </div>
+        <div class="boxnote" id="boxNote"></div>
+      </div>
+
+      <div class="chartcard">
+        <div class="charthd">
+          <div class="chartttl">層二分數落差分布（實際 − Ridge估計，全體 7,313 家門市，鐘形曲線）</div>
+        </div>
+        <div class="chartwrap">
+          <svg viewBox="0 0 900 220" id="bellSvg"></svg>
+        </div>
+        <div class="boxnote" id="bellNote"></div>
+      </div>
+
+      <div class="mckgrid">
+        <div class="mckcard">
+          <div class="mckstep">STEP 1</div>
+          <div class="mckq">已知 PCA 分數／熵權分數，能不能推出最終層二分數？</div>
+          <div class="mcknum g">R² = 0.99993</div>
+          <div class="mckdesc">比對過固定混合比例、一般線性、幾何平均、簡單平均、含交互作用項等多種組合假設，反覆驗證後鎖定：<br><code>層二 ≈ 0.550×PCA + 0.550×熵權 − 0.052</code><br>這是從 7,313 筆真實數字裡驗證出來的規律。</div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">STEP 2</div>
+          <div class="mckq">從 8 個原始特徵，能不能精準重建 PCA／熵權分數？</div>
+          <div class="mcknum r">相關係數 0.87～0.91</div>
+          <div class="mckdesc">用「極端值處理→正規化→加權求和」流程反覆試了多組參數，多輪比對後穩定落在 0.87～0.91——代表這一步的重建仍有落差，還需要更多驗證資訊才能逼近 100%。</div>
+        </div>
+        <div class="mckcard hl">
+          <div class="mckstep">目前部署方案</div>
+          <div class="mckq">跳過中間步驟，直接用 8 特徵學最終分數</div>
+          <div class="mcknum g">R² = 0.9996</div>
+          <div class="mckdesc">多輪驗證比對下來，Ridge 迴歸直接對 8 特徵與最終分數做交叉驗證擬合，表現最穩定——這是系統實際上線使用的方法。</div>
+        </div>
+      </div>
+      <div class="mckcon">
+        <b>多輪驗證後的結論</b>：PCA+熵權法 <b>≈</b> Ridge 迴歸，不是 <b>=</b>。這不是算一次就下定論，而是反覆比對多種假設、多輪交叉驗證後才確認的結果；目前部署的 Ridge 模型，是這些驗證裡表現最穩定、最接近天花板的方案。
+      </div>
+    </div>
+  </div>
+
+  <div id="viewModelaudit" class="tabview" style="display:none">
+    <div class="cd mck">
+      <div class="mckttl">📊 模型考核：外部驗證，不是自己驗證自己</div>
+      <div class="mcksub">層一、層二算出每家店的預估營收後，另外拿一個「模型完全沒看過」的資料去對答案——所得中位數從頭到尾沒有進入訓練，只在最後拿來檢查方向合不合理，避免自己訓練自己驗證的循環論證。</div>
+
+      <div class="chartcard">
+        <div class="charthd">
+          <div class="chartttl">兩種驗證算法的對照：控制人口 vs 沒控制人口</div>
+        </div>
+        <div class="chartwrap">
+          <svg viewBox="0 0 900 195" id="auditSvg"></svg>
+        </div>
+        <div class="boxnote">三者用的是同一份所得資料，差別只在算法有沒有先扣掉「人口」的干擾、以及後續是否有再優化——naive 方向錯了要棄用，殘差法方向對了才拿來當正式結論，進階版則是同一套邏輯上再進步的版本。</div>
+      </div>
+
+      <div class="mckgrid">
+        <div class="mckcard hl">
+          <div class="mckstep">正式採用（進階版）</div>
+          <div class="mckq">殘差法（控制人口）</div>
+          <div class="mcknum g">Spearman +0.295</div>
+          <div class="mckdesc">n = 7,225 筆・p &lt; 0.001<br>先用迴歸把「人口」的影響扣掉，剩下的殘差才拿去跟所得中位數比對——排除「人口多、營收高、所得統計也偏高」這個共同干擾源，才是乾淨的檢驗。初版 +0.219 已升級為此進階版。</div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">已棄用</div>
+          <div class="mckq">Naive 人均法（沒控制人口）</div>
+          <div class="mcknum r">Spearman −0.235</div>
+          <div class="mckdesc">直接拿「營收÷人口」的人均值去比對，結果算出負相關，看起來像「所得越高營收越低」——完全反直覺。後來查出來是人口越多的地方店越密集，人均值被稀釋掉了，不是模型真的有問題，是算法本身失真。</div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">資訊防火牆</div>
+          <div class="mckq">所得資料為什麼不能拿去訓練？</div>
+          <div class="mcknum">0 次使用</div>
+          <div class="mckdesc">層一、層二的訓練特徵只有人口／POI／店數，所得中位數全程沒有出現在訓練資料裡——只在算完之後才調出來對答案。如果訓練時就用了所得，驗證結果一定會很漂亮，但那是「自己出題自己改答案」，沒有意義。</div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">進階版更新</div>
+          <div class="mckq">同一套邏輯，後來又進步了</div>
+          <div class="mcknum g">+34.6%</div>
+          <div class="mckdesc">殘差法（控population）Spearman 從 0.219 進步到 <b style="color:#22d3ee">0.295</b>，新舊版本的門市排名相關性仍有 <b>0.969</b>——代表不是換了一套邏輯重新算，只是同一套方法上再優化，門市排序幾乎沒變，只是驗證訊號更明顯了。</div>
+        </div>
+      </div>
+
+      <div class="mckcon">
+        <b>這一步在整個系統裡的角色</b>：層一（Ridge地區基準）跟層二（PCA+熵權法相對分數）負責「算出數字」，這裡負責「數字算完之後，拿一個沒用過的外部資料檢查方向有沒有錯」。畫面上看得到的地方在門市總覽分頁右下角「✅ 合理性驗證結果」卡片，是固定顯示、不隨選店而變動的整體驗證結論。
       </div>
     </div>
   </div>
@@ -378,6 +618,19 @@
 const L1=[{n:'自家門市',v:.234},{n:'競爭門市',v:.145},{n:'餐飲POI',v:-.124},{n:'機構POI',v:.090},{n:'生活POI',v:-.039},{n:'戶數',v:.016},{n:'交通POI',v:-.009},{n:'人口',v:-.005}];
 const L2=[{n:'人口',p:.376,e:.037},{n:'戶數',p:.377,e:.049},{n:'餐飲POI',p:.228,e:.065},{n:'生活POI',p:.223,e:.300},{n:'機構POI',p:.300,e:.068},{n:'交通POI',p:.230,e:.229},{n:'競爭門市',p:.299,e:.131},{n:'自家門市',p:.262,e:.120}];
 const TREV={60:183.71,62:189.84,65:199.02};
+// 120個代表點，取自組長7,313筆真實輸出，依實際層二分數(PCA+熵權法)由小到大排序後等距抽樣。
+// ridge為5折交叉驗證預測值(非in-sample樂觀值)，R2=0.9996，跟模型驗證分頁報的數字同一份計算。
+const LAYER2_ACTUAL=[0.03,0.0514,0.0886,0.1122,0.1295,0.1464,0.1608,0.174,0.1904,0.2013,0.2158,0.2258,0.2368,0.2474,0.2586,0.2707,0.2815,0.2942,0.3068,0.3192,0.3286,0.339,0.3505,0.3609,0.3693,0.3778,0.3864,0.3946,0.4055,0.4141,0.4233,0.4346,0.4445,0.4539,0.4631,0.4712,0.4802,0.4867,0.4951,0.5021,0.51,0.5169,0.525,0.532,0.5388,0.5452,0.5507,0.5571,0.5626,0.5676,0.5733,0.579,0.5854,0.5912,0.5965,0.6022,0.6083,0.6139,0.6198,0.6251,0.6299,0.6341,0.6398,0.6444,0.65,0.6539,0.657,0.6619,0.6674,0.6715,0.6761,0.6798,0.6846,0.6884,0.6929,0.6971,0.701,0.7057,0.7101,0.7143,0.7199,0.7248,0.7291,0.7325,0.7365,0.7408,0.7455,0.75,0.7545,0.7588,0.7633,0.7682,0.7725,0.7769,0.7826,0.7872,0.7921,0.7972,0.8034,0.8089,0.8137,0.8193,0.824,0.8289,0.8339,0.8387,0.8434,0.849,0.8544,0.8604,0.8655,0.8717,0.8784,0.8855,0.8956,0.9054,0.9169,0.9308,0.9545,0.97];
+const LAYER2_RIDGE=[0.0229,0.0547,0.0916,0.1143,0.1318,0.149,0.1642,0.1767,0.1929,0.204,0.2166,0.2278,0.2394,0.2485,0.2598,0.2724,0.2836,0.2954,0.309,0.3217,0.3285,0.3397,0.3523,0.3637,0.3689,0.377,0.3873,0.397,0.4057,0.415,0.4247,0.4358,0.4445,0.4539,0.4621,0.4713,0.4809,0.4876,0.495,0.5017,0.5101,0.5155,0.5252,0.5303,0.5392,0.5461,0.5511,0.556,0.5633,0.5677,0.5735,0.5804,0.5846,0.5908,0.5966,0.6014,0.607,0.6145,0.6202,0.6234,0.6287,0.6331,0.6386,0.6448,0.6484,0.6531,0.6572,0.6616,0.6661,0.6706,0.6762,0.6787,0.6843,0.6877,0.693,0.6964,0.7017,0.7053,0.7089,0.7135,0.7191,0.7233,0.7297,0.7323,0.736,0.7392,0.7444,0.7485,0.7534,0.7588,0.7619,0.767,0.7724,0.7764,0.7827,0.7871,0.7909,0.7977,0.8022,0.8061,0.8136,0.8181,0.8231,0.827,0.8323,0.839,0.8426,0.8484,0.8534,0.8583,0.8653,0.8636,0.8773,0.8843,0.895,0.9031,0.9151,0.9284,0.9671,0.9833];
+let CHART_SHOW_RIDGE=false;
+// 兩種方法各自的分數分布統計，來自全體7,313家店，非抽樣（實際值=eps_rescale夾限過的layer2_relative_score；
+// Ridge=5折交叉驗證的原始預測值，未經夾限，所以會超出[0.03,0.97]的合理範圍——這是兩方法結構上的真實差異）。
+const BOX_ACTUAL={q1:0.4201,med:0.6274,q3:0.7597,whiskLo:0.03,whiskHi:0.97,dmin:0.03,dmax:0.97};
+const BOX_RIDGE={q1:0.4205,med:0.6269,q3:0.7588,whiskLo:-0.0667,whiskHi:1.032,dmin:-0.0667,dmax:1.032};
+// 落差(實際-Ridge)直方圖，全體7,313家店，固定顯示範圍±0.03(涵蓋7,271家/99.4%)，40個bin。
+const BELL_COUNTS=[0,1,1,1,3,3,5,4,2,3,9,4,7,5,9,24,49,217,717,2129,3095,885,43,4,5,6,4,5,2,6,3,3,3,3,2,2,1,2,2,2];
+const BELL_CENTERS=[-0.02925,-0.02775,-0.02625,-0.02475,-0.02325,-0.02175,-0.02025,-0.01875,-0.01725,-0.01575,-0.01425,-0.01275,-0.01125,-0.00975,-0.00825,-0.00675,-0.00525,-0.00375,-0.00225,-0.00075,0.00075,0.00225,0.00375,0.00525,0.00675,0.00825,0.00975,0.01125,0.01275,0.01425,0.01575,0.01725,0.01875,0.02025,0.02175,0.02325,0.02475,0.02625,0.02775,0.02925];
+const BELL_STAT={mean:0.0000073,std:0.004544,nInRange:7271,nTotal:7313};
 let ALL=[],FIL=[],SEL=null,SC=62,SO='rev',RK='top',MAX_REV=1;
 
 const rm=v=>(v/1e4).toFixed(1);
@@ -431,7 +684,7 @@ async function init() {
   const cf=$('fC');
   cities.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cf.appendChild(o);});
   
-  updHd(); rList(); rZP(zeropoi); rL1(); rL2(); setRk('top');
+  updHd(); rList(); rZP(zeropoi); rL1(); rL2(); setRk('top'); rTick();
   try {
     await ensureMap();
   } catch(e) {
@@ -447,14 +700,240 @@ function updHd(){
   $('hT').textContent=TREV[SC]+' 億';
   const avg=ALL.reduce((s,x)=>s+(x['rev'+SC]||0),0)/ALL.length;
   $('hA').textContent=rk(avg);
+  $('fmlTarget').textContent=TREV[SC]+' 億（'+SC+'% 情境）';
 }
 
 function setSc(pct){
   SC=pct;
   [60,62,65].forEach(p=>{$('sb'+p).classList.toggle('on',p===SC);$('p'+p).classList.toggle('on',p===SC);});
-  updHd();rList();setRk(RK);
+  updHd();rList();setRk(RK);markTickCol();
   if(SEL)rDetail(SEL);
 }
+
+function rTick(){
+  const top15=[...ALL].sort((a,b)=>(b.rev62||0)-(a.rev62||0)).slice(0,15);
+  $('tickBody').innerHTML=top15.map((s,i)=>`<tr data-r60="${rm(s.rev60||0)}萬" data-r62="${rm(s.rev62||0)}萬" data-r65="${rm(s.rev65||0)}萬">
+      <td class="tkrk">${i+1}</td>
+      <td class="tknm">${s.name}</td>
+      <td class="tkloc">${s.city} ${s.town}</td>
+      <td class="tknum tkl1">${(s.l1||0).toFixed(1)}</td>
+      <td class="tknum tkl2">${(s.l2||0).toFixed(4)}</td>
+      <td class="tknum tkcb">${(s.score||0).toFixed(3)}</td>
+      <td class="tknum tktrev">${TREV[SC]} 億</td>
+      <td class="tkval">${rm(s['rev'+SC]||0)}萬</td>
+    </tr>`).join('');
+  markTickCol();
+}
+
+function markTickCol(){
+  $('tkValHd').textContent=SC+'%';
+  document.querySelectorAll('#tickBody tr').forEach(tr=>{
+    const td=tr.querySelector('td.tkval');
+    td.textContent=tr.dataset['r'+SC];
+    td.classList.remove('tkflash');void td.offsetWidth;td.classList.add('tkflash');
+  });
+  document.querySelectorAll('#tickTbl td.tktrev').forEach(td=>{
+    td.textContent=TREV[SC]+' 億';
+    td.classList.remove('tkflash');void td.offsetWidth;td.classList.add('tkflash');
+  });
+}
+
+let TICK_AUTO=null;
+function toggleAutoPlay(){
+  const btn=$('tickAuto');
+  if(TICK_AUTO){
+    clearInterval(TICK_AUTO);TICK_AUTO=null;
+    btn.classList.remove('on');btn.textContent='▶ 自動輪播情境';
+  } else {
+    btn.classList.add('on');btn.textContent='⏸ 停止輪播';
+    const seq=[60,62,65];let idx=seq.indexOf(SC);
+    TICK_AUTO=setInterval(()=>{idx=(idx+1)%seq.length;setSc(seq[idx]);},2200);
+  }
+}
+
+function scrollToPain(cardSelector){
+  const el=document.querySelector('.'+cardSelector);
+  if(!el)return;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');
+}
+
+function switchTab(view){
+  $('viewOverview').style.display=view==='overview'?'contents':'none';
+  $('viewModelcheck').style.display=view==='modelcheck'?'block':'none';
+  $('viewModelaudit').style.display=view==='modelaudit'?'block':'none';
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.view===view));
+}
+
+function renderAudit(){
+  const svg=$('auditSvg');
+  const ax0=230,ax1=860,amin=-0.3,amax=0.3;
+  const mapX=v=>ax0+(v-amin)/(amax-amin)*(ax1-ax0);
+  const y0=48,y1=100,y2=152,barH=26;
+  let g='';
+  [-0.3,-0.2,-0.1,0,0.1,0.2,0.3].forEach(v=>{
+    const x=mapX(v);
+    g+=`<line x1="${x}" y1="20" x2="${x}" y2="178" class="chartgrid"/>`;
+    g+=`<text class="chartxlbl" x="${x}" y="192" text-anchor="middle">${v>0?'+':''}${v.toFixed(1)}</text>`;
+  });
+  const x0=mapX(0);
+  g+=`<line x1="${x0}" y1="15" x2="${x0}" y2="178" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>`;
+
+  const rows=[
+    {y:y0,v:0.295,color:'#10b981',label:'殘差法・進階版・採用'},
+    {y:y1,v:0.219,color:'#22d3ee',label:'殘差法（控制人口）・初版'},
+    {y:y2,v:-0.235,color:'#ef4444',label:'Naive人均法・棄用'},
+  ];
+  rows.forEach(r=>{
+    const x=mapX(r.v);
+    const bx=Math.min(x,x0),bw=Math.abs(x-x0);
+    g+=`<text x="${ax0-14}" y="${r.y+5}" text-anchor="end" font-size="12" font-weight="700" fill="rgba(255,255,255,.85)">${r.label}</text>`;
+    g+=`<rect x="${bx}" y="${r.y-barH/2}" width="${Math.max(bw,2)}" height="${barH}" fill="${r.color}" fill-opacity=".55" stroke="${r.color}" stroke-width="1.5" rx="3"/>`;
+    g+=`<text x="${x+(r.v>=0?8:-8)}" y="${r.y+5}" text-anchor="${r.v>=0?'start':'end'}" font-size="13" font-weight="900" fill="${r.color}">${r.v>0?'+':''}${r.v}</text>`;
+  });
+  g+=`<text x="${mapX(0.219)}" y="${(y0+y1)/2+4}" text-anchor="middle" font-size="10" font-weight="700" fill="#22d3ee">↑ +34.6%</text>`;
+  g+=`<text class="chartxlbl" x="${(ax0+ax1)/2}" y="14" text-anchor="middle" fill="rgba(255,255,255,.5)">Spearman 相關係數</text>`;
+  svg.innerHTML=g;
+}
+renderAudit();
+
+const CX0=60,CX1=880,CY0=20,CY1=230;
+const chartMapX=i=>CX0+i/(LAYER2_ACTUAL.length-1)*(CX1-CX0);
+const chartMapY=v=>CY1-v*(CY1-CY0);
+
+function renderChart(){
+  const svg=$('chartSvg');
+  let g='';
+  [0,.2,.4,.6,.8,1].forEach(v=>{
+    const y=chartMapY(v);
+    g+=`<line class="chartgrid" x1="${CX0}" y1="${y}" x2="${CX1}" y2="${y}"/>`;
+    g+=`<text class="chartaxis" x="${CX0-8}" y="${y+3}" text-anchor="end">${v.toFixed(1)}</text>`;
+  });
+  g+=`<text class="chartxlbl" x="${(CX0+CX1)/2}" y="252" text-anchor="middle">門市代表點（依實際層二分數排序，越右分數越高）</text>`;
+  const actualPts=LAYER2_ACTUAL.map((v,i)=>`${chartMapX(i)},${chartMapY(v)}`).join(' ');
+  g+=`<polyline points="${actualPts}" fill="none" stroke="#10b981" stroke-width="2"/>`;
+  if(CHART_SHOW_RIDGE){
+    const ridgePts=LAYER2_RIDGE.map((v,i)=>`${chartMapX(i)},${chartMapY(v)}`).join(' ');
+    g+=`<polyline points="${ridgePts}" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,4"/>`;
+  }
+  g+=`<line id="cxLine" x1="0" y1="${CY0}" x2="0" y2="${CY1}" stroke="rgba(255,255,255,.25)" stroke-width="1" style="display:none"/>`;
+  g+=`<circle id="cxDotA" r="4" fill="#10b981" stroke="#0b1220" stroke-width="1.5" style="display:none"/>`;
+  g+=`<circle id="cxDotR" r="4" fill="#3b82f6" stroke="#0b1220" stroke-width="1.5" style="display:none"/>`;
+  svg.innerHTML=g;
+
+  svg.onmousemove=(e)=>{
+    const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
+    const loc=pt.matrixTransform(svg.getScreenCTM().inverse());
+    let i=Math.round((loc.x-CX0)/(CX1-CX0)*(LAYER2_ACTUAL.length-1));
+    i=Math.max(0,Math.min(LAYER2_ACTUAL.length-1,i));
+    const x=chartMapX(i);
+    $('cxLine').setAttribute('x1',x);$('cxLine').setAttribute('x2',x);$('cxLine').style.display='block';
+    const dotA=$('cxDotA');dotA.setAttribute('cx',x);dotA.setAttribute('cy',chartMapY(LAYER2_ACTUAL[i]));dotA.style.display='block';
+    let tipHtml=`<div class="tprow"><span class="tpdot" style="background:#10b981"></span>PCA+熵權法：${LAYER2_ACTUAL[i].toFixed(3)}</div>`;
+    if(CHART_SHOW_RIDGE){
+      const dotR=$('cxDotR');dotR.setAttribute('cx',x);dotR.setAttribute('cy',chartMapY(LAYER2_RIDGE[i]));dotR.style.display='block';
+      const gap=Math.abs(LAYER2_ACTUAL[i]-LAYER2_RIDGE[i]);
+      tipHtml+=`<div class="tprow"><span class="tpdot" style="background:#3b82f6"></span>Ridge估計：${LAYER2_RIDGE[i].toFixed(3)}</div><div style="color:rgba(255,255,255,.45);margin-top:2px">落差 ${gap.toFixed(4)}</div>`;
+    }
+    const tip=$('chartTip');
+    tip.innerHTML=tipHtml;
+    tip.style.display='block';
+    const wrapRect=$('chartWrap').getBoundingClientRect();
+    const svgRect=svg.getBoundingClientRect();
+    const px=svgRect.left-wrapRect.left+(x/900)*svgRect.width;
+    tip.style.left=px+'px';
+    tip.style.top=(chartMapY(LAYER2_ACTUAL[i])/260*svgRect.height)+'px';
+  };
+  svg.onmouseleave=()=>{
+    $('cxLine').style.display='none';$('cxDotA').style.display='none';$('cxDotR').style.display='none';
+    $('chartTip').style.display='none';
+  };
+}
+
+const BX0=230,BX1=860,BXMIN=-0.15,BXMAX=1.15;
+const boxMapX=v=>BX0+(v-BXMIN)/(BXMAX-BXMIN)*(BX1-BX0);
+
+function drawBoxRow(g,stat,y,color,label){
+  const xLo=boxMapX(stat.whiskLo),xHi=boxMapX(stat.whiskHi);
+  const xQ1=boxMapX(stat.q1),xQ3=boxMapX(stat.q3),xMed=boxMapX(stat.med);
+  g+=`<text x="${BX0-14}" y="${y+4}" text-anchor="end" font-size="13" font-weight="700" fill="rgba(255,255,255,.85)">${label}</text>`;
+  g+=`<line x1="${xLo}" y1="${y}" x2="${xHi}" y2="${y}" stroke="${color}" stroke-width="1.5"/>`;
+  g+=`<line x1="${xLo}" y1="${y-9}" x2="${xLo}" y2="${y+9}" stroke="${color}" stroke-width="1.5"/>`;
+  g+=`<line x1="${xHi}" y1="${y-9}" x2="${xHi}" y2="${y+9}" stroke="${color}" stroke-width="1.5"/>`;
+  g+=`<rect x="${xQ1}" y="${y-18}" width="${Math.max(xQ3-xQ1,2)}" height="36" fill="${color}" fill-opacity=".28" stroke="${color}" stroke-width="1.5" rx="2"/>`;
+  g+=`<line x1="${xMed}" y1="${y-18}" x2="${xMed}" y2="${y+18}" stroke="#fff" stroke-width="2"/>`;
+  return g;
+}
+
+function renderBox(){
+  const svg=$('boxSvg');
+  let g='';
+  [0,.2,.4,.6,.8,1].forEach(v=>{
+    const x=boxMapX(v);
+    g+=`<line x1="${x}" y1="20" x2="${x}" y2="150" class="chartgrid"/>`;
+    g+=`<text class="chartaxis" x="${x}" y="164" text-anchor="middle">${v.toFixed(1)}</text>`;
+  });
+  const x0=boxMapX(0),x1=boxMapX(1);
+  g+=`<line x1="${x0}" y1="12" x2="${x0}" y2="150" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-dasharray="3,3"/>`;
+  g+=`<line x1="${x1}" y1="12" x2="${x1}" y2="150" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-dasharray="3,3"/>`;
+  g+=`<text class="chartaxis" x="${(x0+x1)/2}" y="10" text-anchor="middle" fill="rgba(255,255,255,.5)">合理分數範圍 0～1</text>`;
+
+  g=drawBoxRow(g,BOX_ACTUAL,52,'#10b981','PCA+熵權法（近似值）');
+  g=drawBoxRow(g,BOX_RIDGE,110,'#3b82f6','Ridge迴歸（估計值）');
+  svg.innerHTML=g;
+
+  $('boxNote').innerHTML=`<b>中位數／IQR幾乎相同</b>：PCA+熵權法近似值中位數 ${BOX_ACTUAL.med}、Ridge ${BOX_RIDGE.med}（差距僅 0.0005），中間50%門市的分布範圍也幾乎重疊　`+
+    `｜<b>但全距不一樣</b>：PCA+熵權法因為公式本身有夾限，數值必然落在 [0.03, 0.97] 之間；Ridge 是原始線性預測，沒有這層保護，實測範圍到 [${BOX_RIDGE.dmin}, ${BOX_RIDGE.dmax}]——會跑出合理分數範圍之外。這正是為什麼部署上線的版本要另外加一道「夾在0.03~0.97之間」的保護，兩個方法本質上不是同一回事，不是單純數字湊巧接近而已。`;
+}
+renderBox();
+
+function renderBell(){
+  const svg=$('bellSvg');
+  const bx0=60,bx1=860,by0=20,by1=185;
+  const xmin=BELL_CENTERS[0]-0.0015,xmax=BELL_CENTERS[BELL_CENTERS.length-1]+0.0015;
+  const ymax=Math.max(...BELL_COUNTS);
+  const mapX=v=>bx0+(v-xmin)/(xmax-xmin)*(bx1-bx0);
+  const mapY=c=>by1-(c/ymax)*(by1-by0);
+  const barW=(mapX(BELL_CENTERS[1])-mapX(BELL_CENTERS[0]))*0.86;
+
+  let g='';
+  [0,1000,2000,3000].forEach(c=>{
+    const y=mapY(c);
+    g+=`<line x1="${bx0}" y1="${y}" x2="${bx1}" y2="${y}" class="chartgrid"/>`;
+    g+=`<text class="chartaxis" x="${bx0-8}" y="${y+3}" text-anchor="end">${c}</text>`;
+  });
+  [-0.02,-0.01,0,0.01,0.02].forEach(v=>{
+    const x=mapX(v);
+    g+=`<text class="chartxlbl" x="${x}" y="${by1+16}" text-anchor="middle">${v>0?'+':''}${v.toFixed(2)}</text>`;
+  });
+  const x0=mapX(0);
+  g+=`<line x1="${x0}" y1="${by0-6}" x2="${x0}" y2="${by1}" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-dasharray="3,3"/>`;
+  g+=`<text class="chartaxis" x="${x0}" y="${by0-10}" text-anchor="middle" fill="rgba(255,255,255,.55)">0（完全吻合）</text>`;
+
+  BELL_CENTERS.forEach((c,i)=>{
+    const x=mapX(c),y=mapY(BELL_COUNTS[i]);
+    g+=`<rect x="${x-barW/2}" y="${y}" width="${barW}" height="${by1-y}" fill="#f97316" fill-opacity=".55"/>`;
+  });
+  const linePts=BELL_CENTERS.map((c,i)=>`${mapX(c)},${mapY(BELL_COUNTS[i])}`).join(' ');
+  g+=`<polyline points="${linePts}" fill="none" stroke="#fdba74" stroke-width="2"/>`;
+  g+=`<text class="chartxlbl" x="${(bx0+bx1)/2}" y="212" text-anchor="middle">落差（實際 − Ridge估計）</text>`;
+  svg.innerHTML=g;
+
+  $('bellNote').innerHTML=`<b>平均落差</b>：${BELL_STAT.mean.toFixed(6)}（幾乎等於 0）　`+
+    `<b>標準差</b>：${BELL_STAT.std}　`+
+    `<b>此圖顯示範圍</b>：±0.03 內共 ${BELL_STAT.nInRange} 家（${(BELL_STAT.nInRange/BELL_STAT.nTotal*100).toFixed(1)}%）——`+
+    `絕大多數門市集中在 0 附近（單一bin最高 3,095 家），是典型的鐘形分布，但兩側仍拖著一條長尾，代表少數門市的落差明顯大於平均，不是每一家都完美重疊。`;
+}
+renderBell();
+
+function toggleRidgeLine(){
+  CHART_SHOW_RIDGE=!CHART_SHOW_RIDGE;
+  $('chartToggle').classList.toggle('on',CHART_SHOW_RIDGE);
+  $('chartToggle').textContent=CHART_SHOW_RIDGE?'− 隱藏 Ridge 迴歸估計值':'+ 疊加 Ridge 迴歸估計值';
+  $('chartLegend').style.display=CHART_SHOW_RIDGE?'flex':'none';
+  renderChart();
+}
+renderChart();
 
 function doSrch(){
   const v=$('sI').value.trim().toLowerCase();
@@ -491,7 +970,12 @@ function rList(){
   $('sCnt').textContent=FIL.length.toLocaleString();
 }
 
-function sel(id){SEL=ALL.find(s=>s.id===id);rList();rDetail(SEL);}
+function sel(id){
+  SEL=ALL.find(s=>s.id===id);rList();rDetail(SEL);
+  const det=document.querySelector('.det');
+  const r=det.getBoundingClientRect();
+  if(r.top<0||r.top>150) det.scrollIntoView({behavior:'smooth',block:'start'});
+}
 
 function rDetail(s){
   if(!s)return;
@@ -508,7 +992,7 @@ function rDetail(s){
   $('dCF').style.left=lp+'%';$('dCF').style.width=Math.max(hp-lp,2)+'%';
   [60,62,65].forEach(p=>{$('p'+p+'v').textContent=rm(s['rev'+p]||0)+' 萬';$('p'+p).classList.toggle('on',p===SC);});
   $('iPop').textContent=(s.pop||0).toLocaleString();$('iComp').textContent=s.comp||0;
-  $('iRent').textContent=(s.rent||0).toFixed(0);$('iRFb').textContent=s.rentFb?'(縣市回退)':'';
+  $('iRent').textContent=(s.rent||0).toFixed(0);$('iRFb').style.display=s.rentFb?'inline-block':'none';
   $('iCat').textContent=s.cat||0;$('iTra').textContent=s.tra||0;$('iOwn').textContent=s.own||0;
   $('sL1').textContent=(s.l1||0).toFixed(2);$('sL2').textContent=(s.l2||0).toFixed(4);$('sCB').textContent=(s.score||0).toFixed(3);
   $('map').classList.add('map-active');
