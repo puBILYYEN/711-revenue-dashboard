@@ -604,8 +604,44 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const VALIDATE_API = 'https://seven11-rag-backend.onrender.com/api/validate_csv';
+const ALLOCATION_API = 'https://seven11-rag-backend.onrender.com/api/estimate_allocation';
+const ALLOCATION_SCHEMA = ['city','town','population','household','cateringNum','livingNum','institutionNum','transitNum','competitorNum','ownStoreNum'];
 
 function openImport(){ $('importFile').click(); }
+
+function parseCsvSimple(text){
+  const lines = text.trim().split(/\r?\n/);
+  const header = lines[0].split(',').map(h=>h.trim());
+  const rows = lines.slice(1).map(l=>{
+    const cells = l.split(',');
+    const obj = {};
+    header.forEach((h,i)=>{ obj[h] = (cells[i]||'').trim(); });
+    return obj;
+  });
+  return {header, rows};
+}
+
+async function tryEstimateAllocation(content){
+  const {header, rows} = parseCsvSimple(content);
+  const hasSchema = ALLOCATION_SCHEMA.every(col => header.includes(col));
+  if(!hasSchema || rows.length===0) return null;
+  const results = [];
+  for(const row of rows){
+    const payload = {city: row.city, town: row.town, share: 62};
+    ALLOCATION_SCHEMA.slice(2).forEach(f => payload[f] = parseFloat(row[f]) || 0);
+    try{
+      const res = await fetch(ALLOCATION_API, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      results.push({row, data});
+    }catch(err){
+      console.error('分配估算失敗', err);
+    }
+  }
+  return results;
+}
 
 function handleImportFile(file){
   if(!file) return;
@@ -629,6 +665,10 @@ function handleImportFile(file){
       console.error('AI檢查失敗', err);
       report = '（AI 品質檢查失敗，僅儲存原始資料，未經檢查）';
     }
+
+    st.textContent = '⏳ 正在套進既有分配模型估算營收…';
+    const allocResults = await tryEstimateAllocation(content);
+
     st.textContent = '上傳中…';
     try{
       await db.collection('raw_imports').add({
@@ -641,7 +681,17 @@ function handleImportFile(file){
         stats: stats ? JSON.stringify(stats) : ''
       });
       const icon = status==='clean' ? '✅' : (status==='needs_attention' ? '⚠️' : '📋');
-      st.innerHTML = `${icon} ${file.name} 已存入，AI 檢查結果：<br><span style="white-space:pre-wrap">${report}</span>`;
+      let html = `${icon} ${file.name} 已存入，AI 檢查結果：<br><span style="white-space:pre-wrap">${report}</span>`;
+      if(allocResults && allocResults.length){
+        html += '<br><br>📊 <b>套進分配模型估算：</b><br>';
+        allocResults.forEach(r => {
+          html += `門市（${r.row.city}${r.row.town}）估計月營收：<b>NT$ ${r.data.estimated_monthly_revenue?.toLocaleString()||'—'}</b>` +
+                  (r.data.town_matched_in_existing_data===false ? '（⚠️此鄉鎮不在既有清單，準確度較低）' : '') + '<br>';
+        });
+      } else {
+        html += '<br><br>（此檔案欄位不符合分配模型格式，未套用營收估算——需要 city/town 及8個特徵欄位）';
+      }
+      st.innerHTML = html;
     }catch(err){
       console.error(err);
       st.textContent = '❌ 上傳失敗：' + err.message;
