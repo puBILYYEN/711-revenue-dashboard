@@ -10,6 +10,8 @@
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" rel="stylesheet" />
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
   <script src="mapbox-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <style>
     :root{--bg:#f7f1e6;--bgc:#f2eadc;--bgh:#e8dfd1;--b:rgba(15,23,42,.08);--bb:rgba(15,23,42,.12);--ac:#3b82f6;--cy:#06b6d4;--pu:#8b5cf6;--gr:#10b981;--ye:#f59e0b;--re:#ef4444;--or:#f97316;--tx:#0f172a;--tm:#475569;--td:#64748b;--g:#00a650;--g-ld:#00a650;--g-hd:#00a650;}
     *{margin:0;padding:0;box-sizing:border-box;}
@@ -341,6 +343,8 @@
 
 <footer class="ftr">
   <button class="habtn" onclick="openImport()">📥 新資料匯入</button>
+  <input type="file" id="importFile" accept=".csv" style="display:none" onchange="handleImportFile(this.files[0])">
+  <span id="importStatus" style="margin-left:.6rem;font-size:.75rem;color:var(--tm)"></span>
 </footer>
 
 <script>
@@ -512,7 +516,41 @@ function rZP(ZP){
 function zpR(name,addr){alert('【Zero POI 核對清單】\n\n門市：'+name+'\n地址：'+addr+'\n\n核對項目：\n1. 地址是否正確？\n2. 周邊確實無 POI？\n3. 是否為廠區或特殊場所？');}
 
 function openAiCs(){alert('🤖 AI 客服\n\n功能開發中——之後會串接 RAG（檢索增強生成），讓使用者能直接問「這間門市為什麼估這個數字」，由模型檢索特徵資料＋Bootstrap 區間後生成回答。');}
-function openImport(){alert('📥 新資料匯入\n\n功能開發中——之後會支援上傳新的門市/POI 資料（CSV），重新跑分配演算法並更新看板顯示。');}
+const firebaseConfig = {
+  apiKey: "AIzaSyCLFDinA6ukOKZKIcnRrfBqgzrhWKRvz1Q",
+  authDomain: "revenue-dashboard-7b387.firebaseapp.com",
+  projectId: "revenue-dashboard-7b387",
+  storageBucket: "revenue-dashboard-7b387.firebasestorage.app",
+  messagingSenderId: "1007546005149",
+  appId: "1:1007546005149:web:7c7f180098a3e1d052c674"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function openImport(){ $('importFile').click(); }
+
+function handleImportFile(file){
+  if(!file) return;
+  const st = $('importStatus');
+  st.textContent = '上傳中…';
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try{
+      await db.collection('raw_imports').add({
+        filename: file.name,
+        size: file.size,
+        content: e.target.result,
+        uploadedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        status: 'pending_review'
+      });
+      st.textContent = `✅ ${file.name} 已存入待處理清單`;
+    }catch(err){
+      console.error(err);
+      st.textContent = '❌ 上傳失敗：' + err.message;
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
 function switchVer(sel){
   if(sel.value==='leader'){
     alert('博文版尚未上線，敬請期待。');
