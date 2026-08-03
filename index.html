@@ -972,6 +972,7 @@ function rList(){
 
 function sel(id){
   SEL=ALL.find(s=>s.id===id);rList();rDetail(SEL);
+  updateMapMarker(SEL).catch(()=>{});
   const det=document.querySelector('.det');
   const r=det.getBoundingClientRect();
   if(r.top<0||r.top>150) det.scrollIntoView({behavior:'smooth',block:'start'});
@@ -983,7 +984,6 @@ function rDetail(s){
   const rev=s['rev'+SC]||0,isZP=(s.cat||0)+(s.liv||0)+(s.ins||0)+(s.tra||0)===0;
   $('dN').textContent=s.name;$('dID').textContent='門市 ID：'+s.id;$('dAD').textContent='📍 '+s.addr;
   $('dZB').style.display=isZP?'block':'none';$('dSC').textContent=SC+'%';
-  updateMapMarker(s).catch(()=>{});
   $('dRM').textContent=rm(rev);
   const lo=s.ciLo||0,hi=s.ciHi||0;
   $('dCL').textContent='下限 '+rk(lo);$('dCH').textContent=rk(hi)+' 上限';$('dCR').textContent=rk(lo)+' ～ '+rk(hi);
