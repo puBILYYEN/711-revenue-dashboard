@@ -323,6 +323,7 @@
 <div class="main">
   <div class="tabbar">
     <button class="tbtn on" data-view="overview" onclick="switchTab('overview')">📋 門市總覽</button>
+    <button class="tbtn" data-view="honesty" onclick="switchTab('honesty')">🎯 誠實邊界</button>
     <button class="tbtn" data-view="modelcheck" onclick="switchTab('modelcheck')">🔬 模型驗證</button>
     <button class="tbtn" data-view="modelaudit" onclick="switchTab('modelaudit')">📊 模型考核</button>
   </div>
@@ -476,6 +477,51 @@
       </div>
     </div>
   </div>
+  </div>
+
+  <div id="viewHonesty" class="tabview" style="display:none">
+    <div class="cd mck">
+      <div class="mckttl">🎯 誠實邊界：贏不贏過虛無模型，才是第一關</div>
+      <div class="mcksub">這份系統最強的地方不是「模型準不準」，是「知道自己的模型在哪裡失效，而且是自己找出來的」——敘事主軸不是「做了一個很準的模型」，是「在一個沒有標準答案的分配題上，做出一套說得出理由、也經得起否證的方法」。這裡整理業界標準要求的第一道否證測試，以及測試後主動收回的宣稱。</div>
+
+      <div class="chartcard">
+        <div class="charthd">
+          <div class="chartttl">業界第一關：跟「虛無模型」比，誰的誤差小？（MAE，數字越小越準）</div>
+        </div>
+        <div class="chartwrap">
+          <svg viewBox="0 0 900 130" id="honestySvg"></svg>
+        </div>
+        <div class="boxnote">虛無模型＝每家店直接等額平分，完全不用任何特徵、不用任何模型。業界判斷一個模型「有沒有用」的第一關，就是先看能不能贏過這個最陽春的對照組。</div>
+      </div>
+
+      <div class="mckgrid">
+        <div class="mckcard hl">
+          <div class="mckstep">否證測試結果</div>
+          <div class="mckq">skill score</div>
+          <div class="mcknum r">−91.4</div>
+          <div class="mckdesc">skill score 是「贏過虛無模型多少百分比」的標準指標，正值代表贏、負值代表輸。−91.4 代表在縣市層級（排除台北口徑），交付版模型的誤差反而比「每家店等額分配」還大。</div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">主動收回</div>
+          <div class="mckq">兩項宣稱撤回</div>
+          <div class="mcknum">2 項</div>
+          <div class="mckdesc">①「縣市層級具外部效度」②「複合賦權優於單一指標」（層二複合分數 +0.137，輸給單用 institutionNum 一個欄位的 +0.299）——兩項都在否證測試後主動收回，不是被問到才承認。</div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">根因不是原先猜的</div>
+          <div class="mckq">縣市離散度 4.8 倍</div>
+          <div class="mcknum">CV 只降 4.4pp</div>
+          <div class="mckdesc">跟財政部稅籍銷售額比對，發現縣市層級的離散度是實際的 4.8 倍。原本猜是「層一層二方向衝突」，實測拿掉衝突後 CV 只降 4.4 個百分點——真正根因是模型缺少「門市網絡已達均衡」的吸收機制，24 種參數修法全部驗證失敗。</div>
+        </div>
+      </div>
+
+      <div class="mckcon">
+        <b>整場只記三句話</b>：
+        <br>一、「這是分配題，不是預測題。」
+        <br>二、「業界的第一關是要贏過虛無模型，我補跑了，我輸了，所以我收回兩項宣稱。」
+        <br>三、「我沒辦法證明這個模型準，但我可以證明我知道它在哪裡不準。」
+      </div>
+    </div>
   </div>
 
   <div id="viewModelcheck" class="tabview" style="display:none">
@@ -760,10 +806,37 @@ function scrollToPain(cardSelector){
 
 function switchTab(view){
   $('viewOverview').style.display=view==='overview'?'contents':'none';
+  $('viewHonesty').style.display=view==='honesty'?'block':'none';
   $('viewModelcheck').style.display=view==='modelcheck'?'block':'none';
   $('viewModelaudit').style.display=view==='modelaudit'?'block':'none';
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.view===view));
 }
+
+function renderHonesty(){
+  const svg=$('honestySvg');
+  const ax0=230,ax1=860,amax=2.0;
+  const mapX=v=>ax0+(v/amax)*(ax1-ax0);
+  const y0=45,y1=90,barH=26;
+  let g='';
+  [0,0.5,1.0,1.5,2.0].forEach(v=>{
+    const x=mapX(v);
+    g+=`<line x1="${x}" y1="15" x2="${x}" y2="115" class="chartgrid"/>`;
+    g+=`<text class="chartxlbl" x="${x}" y="128" text-anchor="middle">${v.toFixed(1)}pp</text>`;
+  });
+  const rows=[
+    {y:y0,v:0.26,color:'#10b981',label:'虛無模型（每店等額）'},
+    {y:y1,v:1.66,color:'#ef4444',label:'交付版模型'},
+  ];
+  rows.forEach(r=>{
+    const x=mapX(r.v);
+    g+=`<text x="${ax0-14}" y="${r.y+5}" text-anchor="end" font-size="12" font-weight="700" fill="rgba(255,255,255,.85)">${r.label}</text>`;
+    g+=`<rect x="${ax0}" y="${r.y-barH/2}" width="${Math.max(x-ax0,2)}" height="${barH}" fill="${r.color}" fill-opacity=".55" stroke="${r.color}" stroke-width="1.5" rx="3"/>`;
+    g+=`<text x="${x+8}" y="${r.y+5}" text-anchor="start" font-size="13" font-weight="900" fill="${r.color}">${r.v} pp</text>`;
+  });
+  g+=`<text class="chartxlbl" x="${(ax0+ax1)/2}" y="14" text-anchor="middle" fill="rgba(255,255,255,.5)">MAE（平均絕對誤差，pp，越低越準）</text>`;
+  svg.innerHTML=g;
+}
+renderHonesty();
 
 function renderAudit(){
   const svg=$('auditSvg');
