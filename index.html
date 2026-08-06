@@ -121,7 +121,7 @@
     .crosscaveat{font-size:.66rem;color:var(--or);background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);border-radius:8px;padding:.4rem .65rem;margin-bottom:.7rem;line-height:1.5;}
     .tickauto.on{background:var(--ac);color:#fff;border-color:var(--ac);}
     .tickwrap{overflow-x:auto;border-radius:10px;background:#0b1220;}
-    .ticktbl{width:100%;min-width:660px;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+    .ticktbl{width:100%;min-width:760px;border-collapse:collapse;font-variant-numeric:tabular-nums;}
     .ticktbl th{padding:.55rem .6rem;font-size:.64rem;font-weight:700;color:rgba(255,255,255,.45);text-align:right;border-bottom:1px solid rgba(255,255,255,.08);transition:color .2s;}
     .ticktbl th.tkrk,.ticktbl th.tknm,.ticktbl th.tkloc{text-align:left;}
     .ticktbl th.tkval{color:var(--g);}
@@ -132,6 +132,7 @@
     .ticktbl td.tkl1{color:#c4b5fd;}
     .ticktbl td.tkl2{color:#67e8f9;}
     .ticktbl td.tkcb{color:#fbbf24;font-weight:700;}
+    .ticktbl td.tkpr{color:#10b981;font-weight:700;}
     .ticktbl td.tktrev{color:#fff;font-weight:700;}
     .ticktbl td.tkval{color:var(--g);font-weight:700;background:rgba(16,185,129,.08);}
     .ticktbl tr:hover td{background:rgba(255,255,255,.03);}
@@ -392,6 +393,7 @@
             </div>
             <div class="prbar"><div class="prbarf" id="dPRBarF"></div><div class="prmark" id="dPRMark"></div></div>
             <div class="prdesc" id="dPRDesc">同縣市同鄉鎮內，依綜合分數排序計算的相對名次——這是本系統目前唯一建議直接使用的比較方式，不建議跨鄉鎮／跨縣市比較。</div>
+            <div class="prdesc" style="margin-top:.3rem;color:rgba(239,68,68,.75)">⚠️ 誠實揭露：這個 PR 值也不是「神準」——外部驗證顯示同鄉鎮分層實際可分辨準確率 52.2%，只比隨機猜測 48.1% 高一點（4.2個標準差，方向正確但效果量小）。PR 值是目前能力範圍內「最不會誤導」的比較方式，不代表它本身很精準。</div>
           </div>
           <div class="rvb">
             <div class="rvlbl">參考金額（<span id="dSC">62%</span> 份額情境）・僅供同鄉鎮內部參考，<b style="color:var(--or)">不建議跨鄉鎮／縣市比較或當作精確預測值</b></div>
@@ -444,6 +446,7 @@
           </tr>
         </table>
       </div>
+      <div class="crosscaveat">⚠️ 這條公式算出的「預估營收ᵢ」跨了全體 7,313 家門市分攤，只能當參考金額——公式裡真正建議拿來比較的是「層一基準×層二分數」這個綜合分數，也就是同鄉鎮 PR 值排序的依據。</div>
     </div>
 
     <div class="cd tick">
@@ -457,7 +460,7 @@
           <thead>
             <tr>
               <th class="tkrk">#</th><th class="tknm">門市</th><th class="tkloc">地區</th>
-              <th class="tknum">層一基準ᵢ</th><th class="tknum">層二分數ᵢ</th><th class="tknum">綜合分數</th><th class="tknum">台灣本業總營收</th>
+              <th class="tknum">層一基準ᵢ</th><th class="tknum">層二分數ᵢ</th><th class="tknum">綜合分數</th><th class="tknum">同鄉鎮PR</th><th class="tknum">台灣本業總營收</th>
               <th class="tkval" id="tkValHd">62%</th>
             </tr>
           </thead>
@@ -797,6 +800,7 @@ function rTick(){
       <td class="tknum tkl1">${(s.l1||0).toFixed(1)}</td>
       <td class="tknum tkl2">${(s.l2||0).toFixed(4)}</td>
       <td class="tknum tkcb">${(s.score||0).toFixed(3)}</td>
+      <td class="tknum tkpr">${s.pr==null?'N/A':'PR '+s.pr}</td>
       <td class="tknum tktrev">${TREV[SC]} 億</td>
       <td class="tkval">${rm(s['rev'+SC]||0)}萬</td>
     </tr>`).join('');
@@ -1336,7 +1340,8 @@ function setRk(m){
   const rk2='rev'+SC,sorted=[...ALL].sort((a,b)=>(b[rk2]||0)-(a[rk2]||0));
   const items=m==='top'?sorted.slice(0,5):sorted.slice(-5).reverse();
   $('RL').innerHTML=items.map((s,i)=>{const rev=s[rk2]||0,cl=m==='top'?'t':'b',num=m==='top'?'#'+(i+1):'#'+(ALL.length-i);
-    return `<div class="ri" onclick="sel('${s.id}')"><div class="rinum ${cl}">${num}</div><div class="rifo"><div class="rinm">${s.name}</div><div class="rict">${s.city} ${s.town}</div></div><div class="rirv ${cl}">${rm(rev)} 萬</div></div>`;}).join('');
+    const prTxt=s.pr==null?'PR N/A':'同鄉鎮 PR '+s.pr;
+    return `<div class="ri" onclick="sel('${s.id}')"><div class="rinum ${cl}">${num}</div><div class="rifo"><div class="rinm">${s.name}</div><div class="rict">${s.city} ${s.town}・${prTxt}</div></div><div class="rirv ${cl}">${rm(rev)} 萬</div></div>`;}).join('');
 }
 
 let map, mapMarker;
