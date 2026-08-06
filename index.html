@@ -118,6 +118,7 @@
     .tickttl{font-size:.85rem;font-weight:700;color:var(--tx);}
     .tickauto{padding:4px 10px;border-radius:7px;border:1px solid var(--bb);background:transparent;color:var(--tm);font-size:.68rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;}
     .tickauto:hover{border-color:var(--ac);color:var(--ac);}
+    .crosscaveat{font-size:.66rem;color:var(--or);background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);border-radius:8px;padding:.4rem .65rem;margin-bottom:.7rem;line-height:1.5;}
     .tickauto.on{background:var(--ac);color:#fff;border-color:var(--ac);}
     .tickwrap{overflow-x:auto;border-radius:10px;background:#0b1220;}
     .ticktbl{width:100%;min-width:660px;border-collapse:collapse;font-variant-numeric:tabular-nums;}
@@ -188,10 +189,29 @@
     .rfbb:hover{background:rgba(249,115,22,.24);}
     @keyframes cardflash{0%{box-shadow:0 0 0 3px rgba(249,115,22,.7);}100%{box-shadow:0 0 0 3px rgba(249,115,22,0);}}
     .cd.flash{animation:cardflash 1.1s ease;}
-    .rvb{background:linear-gradient(135deg,rgba(0,166,80,.07),rgba(6,182,212,.04));border:1px solid rgba(0,166,80,.18);border-radius:13px;padding:1.1rem 1.3rem;margin-bottom:1.1rem;}
-    .rvlbl{font-size:.68rem;color:var(--tm);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem;}
-    .rvmain{font-size:2.7rem;font-weight:900;color:var(--g);line-height:1;letter-spacing:-1px;}
-    .rvunit{font-size:.95rem;color:var(--td);margin-left:3px;font-weight:400;}
+    .prbox{background:linear-gradient(135deg,#09132a,#0e2040,#09132a);border-radius:13px;padding:1.2rem 1.3rem;margin-bottom:.8rem;}
+    .prlbl{font-size:.68rem;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:.5rem;}
+    .prlbl b{color:#fff;}
+    .prrow{display:flex;align-items:baseline;gap:.7rem;}
+    .prval{font-size:3rem;font-weight:900;line-height:1;letter-spacing:-1px;}
+    .prval.hi{color:#10b981;}
+    .prval.mid{color:#f59e0b;}
+    .prval.lo{color:#ef4444;}
+    .prval.na{color:rgba(255,255,255,.35);}
+    .prunit{font-size:.85rem;color:rgba(255,255,255,.5);}
+    .prtag{margin-left:auto;padding:5px 12px;border-radius:20px;font-size:.72rem;font-weight:700;flex-shrink:0;align-self:center;}
+    .prtag.hi{background:rgba(16,185,129,.18);color:#10b981;}
+    .prtag.mid{background:rgba(245,158,11,.18);color:#f59e0b;}
+    .prtag.lo{background:rgba(239,68,68,.18);color:#ef4444;}
+    .prtag.na{background:rgba(255,255,255,.08);color:rgba(255,255,255,.45);}
+    .prbar{margin-top:.8rem;height:8px;border-radius:4px;background:rgba(255,255,255,.08);position:relative;overflow:hidden;}
+    .prbarf{position:absolute;top:0;left:0;bottom:0;border-radius:4px;background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981);}
+    .prmark{position:absolute;top:-3px;width:2px;height:14px;background:#fff;border-radius:1px;transform:translateX(-1px);}
+    .prdesc{margin-top:.6rem;font-size:.66rem;color:rgba(255,255,255,.45);line-height:1.6;}
+    .rvb{background:var(--bgc);border:1px solid var(--b);border-radius:13px;padding:.85rem 1.1rem;margin-bottom:1.1rem;}
+    .rvlbl{font-size:.64rem;color:var(--tm);font-weight:600;margin-bottom:.3rem;line-height:1.5;}
+    .rvmain{font-size:1.5rem;font-weight:800;color:var(--tm);line-height:1;letter-spacing:-.5px;}
+    .rvunit{font-size:.8rem;color:var(--td);margin-left:3px;font-weight:400;}
     .cir{margin-top:.65rem;}
     .citp{display:flex;justify-content:space-between;font-size:.68rem;color:var(--tm);margin-bottom:4px;}
     .cibw{height:6px;background:rgba(255,255,255,.05);border-radius:3px;position:relative;overflow:hidden;}
@@ -364,9 +384,18 @@
             <div><div class="dnm" id="dN"></div><div class="did" id="dID"></div><div class="dadr" id="dAD"></div></div>
             <div id="dZB" style="display:none" class="zpb" onclick="scrollToPain('zpc')" title="點擊查看說明">⚠️ Zero POI 待核對</div>
           </div>
+          <div class="prbox">
+            <div class="prlbl">📍 <b>同鄉鎮 PR 值</b>——這家店打敗了同鄉鎮內多少比例的門市（樣本：<span id="dPRTown">—</span>）</div>
+            <div class="prrow">
+              <div class="prval" id="dPRVal">—</div><div class="prunit">PR</div>
+              <div class="prtag" id="dPRTag">—</div>
+            </div>
+            <div class="prbar"><div class="prbarf" id="dPRBarF"></div><div class="prmark" id="dPRMark"></div></div>
+            <div class="prdesc" id="dPRDesc">同縣市同鄉鎮內，依綜合分數排序計算的相對名次——這是本系統目前唯一建議直接使用的比較方式，不建議跨鄉鎮／跨縣市比較。</div>
+          </div>
           <div class="rvb">
-            <div class="rvlbl">估算月營收（<span id="dSC">62%</span> 份額情境）</div>
-            <div><span class="rvmain" id="dRM">—</span><span class="rvunit">萬元 / 月</span></div>
+            <div class="rvlbl">參考金額（<span id="dSC">62%</span> 份額情境）・僅供同鄉鎮內部參考，<b style="color:var(--or)">不建議跨鄉鎮／縣市比較或當作精確預測值</b></div>
+            <div><span class="rvmain" id="dRM">—</span><span class="rvunit">萬元 / 月（參考）</span></div>
             <div class="cir">
               <div class="citp"><span>80% Bootstrap 信賴區間</span><span id="dCR">—</span></div>
               <div class="cibw"><div class="cibf" id="dCF"></div></div>
@@ -422,6 +451,7 @@
         <span class="tickttl">📊 門市營收試算表（TOP 15，公式逐項拆解）</span>
         <button class="tickauto" id="tickAuto" onclick="toggleAutoPlay()">▶ 自動輪播情境</button>
       </div>
+      <div class="crosscaveat">⚠️ 這張表跨了不同鄉鎮／縣市，金額欄位僅供參考——依審計結論，本系統目前只建議在「同一鄉鎮內」比較，不建議跨鄉鎮排名。</div>
       <div class="tickwrap">
         <table class="ticktbl" id="tickTbl">
           <thead>
@@ -461,6 +491,7 @@
       </div>
       <div class="cd rkp">
         <div class="rkttl">🏆 門市營收排行</div>
+        <div class="crosscaveat">⚠️ 跨鄉鎮排名僅供參考，不是本系統建議的比較方式——建議改看左側「同鄉鎮 PR 值」。</div>
         <div class="rktbs">
           <button class="rktb on" id="rtT" onclick="setRk('top')">TOP 5 ↑</button>
           <button class="rktb" id="rtB" onclick="setRk('bot')">底部 5 ↓</button>
@@ -725,7 +756,8 @@ async function init() {
   ALL = stores;
   FIL = [...ALL];
   MAX_REV = Math.max(...ALL.map(s=>s.rev62||0));
-  
+  computeTownPR(ALL);
+
   const cities=[...new Set(ALL.map(s=>s.city))].sort();
   const cf=$('fC');
   cities.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cf.appendChild(o);});
@@ -1043,6 +1075,41 @@ function rList(){
   $('sCnt').textContent=FIL.length.toLocaleString();
 }
 
+function computeTownPR(all){
+  const groups={};
+  all.forEach(s=>{
+    const k=s.city+'||'+s.town;
+    (groups[k]=groups[k]||[]).push(s);
+  });
+  Object.values(groups).forEach(g=>{
+    g.sort((a,b)=>(a.score||0)-(b.score||0));
+    const n=g.length;
+    g.forEach((s,i)=>{
+      s.townN=n;
+      s.pr=n>1?Math.round(i/(n-1)*100):null;
+    });
+  });
+}
+
+function renderPR(s){
+  $('dPRTown').textContent=s.city+s.town+'・共'+(s.townN||1)+'家';
+  if(s.pr==null){
+    $('dPRVal').textContent='N/A';$('dPRVal').className='prval na';
+    $('dPRTag').textContent='樣本不足';$('dPRTag').className='prtag na';
+    $('dPRBarF').style.width='0%';$('dPRMark').style.left='0%';
+    $('dPRDesc').textContent='這個鄉鎮只有這一家收錄門市，沒有同鄉鎮同業可以比較，PR值無法計算。';
+    return;
+  }
+  const pr=s.pr;
+  const cls=pr>=67?'hi':pr>=34?'mid':'lo';
+  const tag=pr>=67?'領先同鄉鎮':pr>=34?'同鄉鎮中段':'落後同鄉鎮';
+  $('dPRVal').textContent=pr;$('dPRVal').className='prval '+cls;
+  $('dPRTag').textContent=tag;$('dPRTag').className='prtag '+cls;
+  $('dPRBarF').style.width='100%';
+  $('dPRMark').style.left=pr+'%';
+  $('dPRDesc').textContent=`同縣市同鄉鎮內，依綜合分數排序計算的相對名次——這是本系統目前唯一建議直接使用的比較方式，不建議跨鄉鎮／跨縣市比較。PR ${pr} 代表贏過鄉鎮內 ${pr}% 的收錄門市。`;
+}
+
 function sel(id){
   SEL=ALL.find(s=>s.id===id);rList();rDetail(SEL);
   updateMapMarker(SEL).catch(()=>{});
@@ -1058,6 +1125,7 @@ function rDetail(s){
   $('dN').textContent=s.name;$('dID').textContent='門市 ID：'+s.id;$('dAD').textContent='📍 '+s.addr;
   $('dZB').style.display=isZP?'block':'none';$('dSC').textContent=SC+'%';
   $('dRM').textContent=rm(rev);
+  renderPR(s);
   const lo=s.ciLo||0,hi=s.ciHi||0;
   $('dCL').textContent='下限 '+rk(lo);$('dCH').textContent=rk(hi)+' 上限';$('dCR').textContent=rk(lo)+' ～ '+rk(hi);
   const mx=MAX_REV||1;
