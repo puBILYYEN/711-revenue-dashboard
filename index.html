@@ -72,6 +72,10 @@
     .tbtn{padding:.65rem 1.1rem;border:none;background:transparent;color:var(--tm);font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
     .tbtn:hover{color:var(--tx);}
     .tbtn.on{color:var(--ac);border-bottom-color:var(--ac);}
+    .tbtnum{display:inline-block;margin-right:.3rem;opacity:.55;}
+    .nextstep{grid-column:1/-1;display:flex;justify-content:flex-end;padding:.9rem 0 0;}
+    .nextbtn{padding:.7rem 1.3rem;border-radius:9px;border:none;background:var(--ac);color:#fff;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;box-shadow:0 4px 14px rgba(59,130,246,.35);}
+    .nextbtn:hover{background:#2563eb;transform:translateY(-1px);}
     .tabview{grid-column:1/-1;}
     .mck{padding:1.3rem 1.4rem;}
     .mckttl{font-size:.9rem;font-weight:700;color:var(--tx);margin-bottom:.3rem;}
@@ -88,6 +92,7 @@
     .mckdesc code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;color:#67e8f9;font-family:monospace;}
     .mckcon{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:.9rem 1.1rem;font-size:.72rem;color:var(--tm);line-height:1.7;}
     .mckcon b{color:var(--tx);}
+    .evidhr{font-size:.66rem;color:var(--tm);text-align:center;margin:1rem 0 .8rem;text-transform:uppercase;letter-spacing:.05em;}
     .chartcard{background:linear-gradient(135deg,#09132a,#0e2040,#09132a);border-radius:12px;padding:1rem 1.1rem 1.2rem;margin-bottom:1.1rem;}
     .charthd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem;}
     .chartttl{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.75);}
@@ -348,13 +353,13 @@
 
 <div class="main">
   <div class="tabbar">
-    <button class="tbtn on" data-view="overview" onclick="switchTab('overview')">📋 門市總覽</button>
-    <button class="tbtn" data-view="honesty" onclick="switchTab('honesty')">🎯 誠實邊界</button>
-    <button class="tbtn" data-view="modelcheck" onclick="switchTab('modelcheck')">🔬 模型驗證</button>
-    <button class="tbtn" data-view="modelaudit" onclick="switchTab('modelaudit')">📊 模型考核</button>
+    <button class="tbtn on" data-view="honesty" onclick="switchTab('honesty')"><span class="tbtnum">①</span>🎯 先看這裡：誠實邊界</button>
+    <button class="tbtn" data-view="overview" onclick="switchTab('overview')"><span class="tbtnum">②</span>📋 門市總覽</button>
+    <button class="tbtn" data-view="modelcheck" onclick="switchTab('modelcheck')"><span class="tbtnum">③</span>🔬 模型驗證（深入）</button>
+    <button class="tbtn" data-view="modelaudit" onclick="switchTab('modelaudit')"><span class="tbtnum">④</span>📊 模型考核（深入）</button>
   </div>
 
-  <div id="viewOverview" style="display:contents">
+  <div id="viewOverview" style="display:none">
   <div class="cd allocbanner">
     <div class="allocicon">🎯</div>
     <div class="alloctxt">
@@ -523,12 +528,21 @@
       </div>
     </div>
   </div>
+  <div class="nextstep"><button class="nextbtn" onclick="switchTab('modelcheck')">想深入方法論？看模型驗證 →</button></div>
   </div>
 
-  <div id="viewHonesty" class="tabview" style="display:none">
+  <div id="viewHonesty" class="tabview" style="display:block">
     <div class="cd mck">
       <div class="mckttl">🎯 誠實邊界：贏不贏過虛無模型，才是第一關</div>
-      <div class="mcksub">這份系統最強的地方不是「模型準不準」，是「知道自己的模型在哪裡失效，而且是自己找出來的」——敘事主軸不是「做了一個很準的模型」，是「在一個沒有標準答案的分配題上，做出一套說得出理由、也經得起否證的方法」。這裡整理業界標準要求的第一道否證測試，以及測試後主動收回的宣稱。</div>
+      <div class="mcksub">這份系統最強的地方不是「模型準不準」，是「知道自己的模型在哪裡失效，而且是自己找出來的」——敘事主軸不是「做了一個很準的模型」，是「在一個沒有標準答案的分配題上，做出一套說得出理由、也經得起否證的方法」。</div>
+
+      <div class="mckcon">
+        <b>結論先講，三句話</b>：
+        <br>一、「這是分配題，不是預測題。」
+        <br>二、「業界的第一關是要贏過虛無模型，我補跑了，我輸了，所以我收回兩項宣稱。」
+        <br>三、「我沒辦法證明這個模型準，但我可以證明我知道它在哪裡不準。」
+      </div>
+      <div class="evidhr">以下是這三句話的數據佐證 ↓</div>
 
       <div class="chartcard">
         <div class="charthd">
@@ -561,12 +575,7 @@
         </div>
       </div>
 
-      <div class="mckcon">
-        <b>整場只記三句話</b>：
-        <br>一、「這是分配題，不是預測題。」
-        <br>二、「業界的第一關是要贏過虛無模型，我補跑了，我輸了，所以我收回兩項宣稱。」
-        <br>三、「我沒辦法證明這個模型準，但我可以證明我知道它在哪裡不準。」
-      </div>
+      <div class="nextstep"><button class="nextbtn" onclick="switchTab('overview')">校準完期待，看門市總覽 →</button></div>
     </div>
   </div>
 
@@ -634,6 +643,7 @@
       <div class="mckcon">
         <b>多輪驗證後的結論</b>：PCA+熵權法 <b>≈</b> Ridge 迴歸，不是 <b>=</b>。這不是算一次就下定論，而是反覆比對多種假設、多輪交叉驗證後才確認的結果；目前部署的 Ridge 模型，是這些驗證裡表現最穩定、最接近天花板的方案。
       </div>
+      <div class="nextstep"><button class="nextbtn" onclick="switchTab('modelaudit')">再看外部驗證：模型考核 →</button></div>
     </div>
   </div>
 
@@ -682,6 +692,7 @@
       <div class="mckcon">
         <b>這一步在整個系統裡的角色</b>：層一（Ridge地區基準）跟層二（PCA+熵權法相對分數）負責「算出數字」，這裡負責「數字算完之後，拿一個沒用過的外部資料檢查方向有沒有錯」。畫面上看得到的地方在門市總覽分頁右下角「✅ 合理性驗證結果」卡片，是固定顯示、不隨選店而變動的整體驗證結論。
       </div>
+      <div class="nextstep"><button class="nextbtn" onclick="switchTab('honesty')">↺ 回到開頭複習三句結論</button></div>
     </div>
   </div>
 </div>
