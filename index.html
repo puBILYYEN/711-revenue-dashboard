@@ -69,6 +69,9 @@
     .alloctitle{font-size:.95rem;font-weight:800;color:#fff;margin-bottom:.4rem;}
     .allocdesc{font-size:.74rem;color:rgba(255,255,255,.65);line-height:1.75;}
     .allocdesc b{color:#10b981;font-weight:700;}
+    .allocreasons{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-top:.9rem;}
+    .allocr{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:.7rem .8rem;font-size:.7rem;color:rgba(255,255,255,.6);line-height:1.6;}
+    .allocr b{display:block;color:#fff;font-size:.72rem;margin-bottom:.3rem;}
     .tbtn{padding:.65rem 1.1rem;border:none;background:transparent;color:var(--tm);font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
     .tbtn:hover{color:var(--tx);}
     .tbtn.on{color:var(--ac);border-bottom-color:var(--ac);}
@@ -369,6 +372,11 @@
     <div class="alloctxt">
       <div class="alloctitle">這是分配題，不是預測題</div>
       <div class="allocdesc">全台 7-ELEVEN 合併月營收（<b id="allocTotal">189.84 億</b>）是 2025 統一超財報揭露的<b>真實數字</b>，不是預測值——這個模型要回答的不是「這家店賺多少」，是「這筆已經確定的錢，該怎麼切給 7,313 家店」。<b>硬性約束</b>：全部門市的估計值加總，會精確等於這個總額，誤差 0.00 元——這是結構上的保證，不是湊出來的。真正有不確定性的地方，是「怎麼切」（每家店在同鄉鎮裡的相對強弱、也就是 PR 值），<b>不是「總共有多少錢」</b>。</div>
+      <div class="allocreasons">
+        <div class="allocr"><b>為什麼不能直接預測？</b>單店月營收是商業機密，無法取得——沒有可供監督式學習的正確答案（Y）。</div>
+        <div class="allocr"><b>手上有什麼？</b>只有「當月全台合併營收」這一個數字，卻要回推分給 7,313 間店。</div>
+        <div class="allocr"><b>舊做法為什麼不夠好？</b>人工訂權重（人口0.30、租金0.20⋯），說不出「為什麼是這個數字」。</div>
+      </div>
     </div>
   </div>
   <div class="left">
@@ -451,7 +459,7 @@
 
     <div class="cd fml">
       <div class="fmlttl">📐 預估營收怎麼算出來的</div>
-      <div class="fmlsub">比例分配的結構保證，不是靠事後調整湊出來的——分母是全體門市加總，換份額只是整體同比例縮放，不影響排序</div>
+      <div class="fmlsub">比例分配的結構保證，不是靠事後調整湊出來的——分母是全體門市加總，換份額只是整體同比例縮放，不影響排序。跟官方 V8 版本公式「估計營收ᵢ=(分數ᵢ÷Σ分數)×目標營收」是同一條，下面只是把「分數ᵢ」拆開成「層一×層二」講清楚它怎麼來的。</div>
       <div class="fmlwrap">
         <table class="fmltbl">
           <tr>
