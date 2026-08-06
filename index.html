@@ -64,6 +64,11 @@
     .hsl{font-size:.62rem;color:rgba(255,255,255,.55);margin-top:1px;}
     .main{max-width:1700px;margin:0 auto;padding:1.25rem 2rem;display:grid;grid-template-columns:370px 1fr;gap:1rem;min-height:calc(100vh - 62px);align-content:start;}
     .tabbar{grid-column:1/-1;display:flex;gap:.4rem;border-bottom:1px solid var(--bb);}
+    .cd.allocbanner{grid-column:1/-1;display:flex;gap:.9rem;align-items:flex-start;padding:1.1rem 1.3rem;background:linear-gradient(135deg,#09132a,#0e2040,#09132a);border:none;}
+    .allocicon{font-size:1.8rem;flex-shrink:0;line-height:1;}
+    .alloctitle{font-size:.95rem;font-weight:800;color:#fff;margin-bottom:.4rem;}
+    .allocdesc{font-size:.74rem;color:rgba(255,255,255,.65);line-height:1.75;}
+    .allocdesc b{color:#10b981;font-weight:700;}
     .tbtn{padding:.65rem 1.1rem;border:none;background:transparent;color:var(--tm);font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
     .tbtn:hover{color:var(--tx);}
     .tbtn.on{color:var(--ac);border-bottom-color:var(--ac);}
@@ -350,6 +355,13 @@
   </div>
 
   <div id="viewOverview" style="display:contents">
+  <div class="cd allocbanner">
+    <div class="allocicon">🎯</div>
+    <div class="alloctxt">
+      <div class="alloctitle">這是分配題，不是預測題</div>
+      <div class="allocdesc">全台 7-ELEVEN 合併月營收（<b id="allocTotal">189.84 億</b>）是 2025 統一超財報揭露的<b>真實數字</b>，不是預測值——這個模型要回答的不是「這家店賺多少」，是「這筆已經確定的錢，該怎麼切給 7,313 家店」。<b>硬性約束</b>：全部門市的估計值加總，會精確等於這個總額，誤差 0.00 元——這是結構上的保證，不是湊出來的。真正有不確定性的地方，是「怎麼切」（每家店在同鄉鎮裡的相對強弱、也就是 PR 值），<b>不是「總共有多少錢」</b>。</div>
+    </div>
+  </div>
   <div class="left">
     <div class="cd scard">
       <div class="slbl">🔍 門市搜尋</div>
@@ -782,6 +794,7 @@ function updHd(){
   const avg=ALL.reduce((s,x)=>s+(x['rev'+SC]||0),0)/ALL.length;
   $('hA').textContent=rk(avg);
   $('fmlTarget').textContent=TREV[SC]+' 億（'+SC+'% 情境）';
+  $('allocTotal').textContent=TREV[SC]+' 億';
 }
 
 function setSc(pct){
