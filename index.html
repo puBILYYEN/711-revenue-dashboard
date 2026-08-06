@@ -112,6 +112,10 @@
     .charttip .tprow{display:flex;align-items:center;gap:.4rem;}
     .charttip .tpdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
     .boxnote{margin-top:.4rem;font-size:.76rem;color:rgba(255,255,255,.55);line-height:1.7;}
+    .nextgap{display:flex;flex-direction:column;align-items:center;padding:1rem 0 .6rem;}
+    .nextgapicon{font-size:2.2rem;filter:drop-shadow(0 0 10px rgba(16,185,129,.5));}
+    .nextgaplbl{margin-top:.5rem;font-size:.85rem;font-weight:700;color:#10b981;text-align:center;line-height:1.5;}
+    .nextgaplbl span{font-size:.7rem;font-weight:500;color:rgba(255,255,255,.5);}
     .boxnote b{color:#fff;}
     .fml{padding:1.2rem 1.3rem;}
     .fmlttl{font-size:.85rem;font-weight:700;color:var(--tx);margin-bottom:.3rem;}
@@ -573,6 +577,17 @@
           <div class="mcknum">CV 只降 4.4pp</div>
           <div class="mckdesc">跟財政部稅籍銷售額比對，發現縣市層級的離散度是實際的 4.8 倍。原本猜是「層一層二方向衝突」，實測拿掉衝突後 CV 只降 4.4 個百分點——真正根因是模型缺少「門市網絡已達均衡」的吸收機制，24 種參數修法全部驗證失敗。</div>
         </div>
+      </div>
+
+      <div class="chartcard">
+        <div class="charthd">
+          <div class="chartttl">下一步：萬事具備，只欠真值</div>
+        </div>
+        <div class="nextgap">
+          <div class="nextgapicon">🧩</div>
+          <div class="nextgaplbl">實際 POS 營收<br><span>（Ground Truth）</span></div>
+        </div>
+        <div class="boxnote">要把這套架構變成真正的預測工具，缺的不是方法，是 <b style="color:#fff">POS 真值</b>——一旦拿到，這套高度可稽核的管線（144 項數字全自動溯源比對）立刻就能拿來校準。這是目前唯一還缺的那一塊拼圖，其他都已經備齊。</div>
       </div>
 
       <div class="nextstep"><button class="nextbtn" onclick="switchTab('overview')">校準完期待，看門市總覽 →</button></div>
