@@ -870,6 +870,9 @@ function switchTab(view){
   $('viewModelcheck').style.display=view==='modelcheck'?'block':'none';
   $('viewModelaudit').style.display=view==='modelaudit'?'block':'none';
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.view===view));
+  if(view==='overview'&&map){
+    requestAnimationFrame(()=>map.resize());
+  }
 }
 
 function renderHonesty(){
@@ -1406,6 +1409,9 @@ async function geocodeAddress(addr){
 async function updateMapMarker(s){
   await ensureMap();
   if(!map) return;
+  map.resize();
+  await new Promise(r=>requestAnimationFrame(r));
+  map.resize();
   let coords = s.lnglat;
   if(!coords) coords = await geocodeAddress(s.addr);
   if(!coords) return;
