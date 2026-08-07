@@ -63,7 +63,7 @@
     .csin button{padding:.5rem .9rem;border-radius:8px;border:none;background:var(--ac);color:#fff;font-size:.8rem;font-weight:600;cursor:pointer;}
     .csin button:disabled{opacity:.5;cursor:not-allowed;}
     .hsl{font-size:.62rem;color:rgba(255,255,255,.55);margin-top:1px;}
-    .main{max-width:1700px;margin:0 auto;padding:1.25rem 2rem;display:grid;grid-template-columns:370px 1fr;gap:1rem;min-height:calc(100vh - 62px);align-content:start;}
+    .main{max-width:1900px;margin:0 auto;padding:1.25rem 2rem;display:grid;grid-template-columns:370px 1fr 420px;gap:1rem;min-height:calc(100vh - 62px);align-content:start;}
     .tabbar{grid-column:1/-1;display:flex;gap:.4rem;border-bottom:1px solid var(--bb);}
     .cd.allocbanner{grid-column:1/-1;display:flex;gap:.9rem;align-items:flex-start;padding:1.1rem 1.3rem;background:linear-gradient(135deg,#09132a,#0e2040,#09132a);border:none;}
     .allocicon{font-size:1.8rem;flex-shrink:0;line-height:1;}
@@ -278,9 +278,10 @@
     .spinfo b{color:var(--td);}
     .vnote{font-size:.76rem;color:var(--tm);line-height:1.6;padding:.55rem .7rem;background:rgba(255,255,255,.03);border-radius:7px;border-left:3px solid var(--ac);margin-bottom:.6rem;}
     .vwarn{font-size:.76rem;color:var(--tm);line-height:1.6;padding:.55rem .7rem;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.12);border-radius:7px;}
-    .mapbox-container{position:relative;height:580px;border-radius:14px;border:1px solid var(--bb);overflow:hidden;margin-top:1rem;background:#fff;scroll-margin-top:80px;}
+    .mapbox-container{position:sticky;top:75px;align-self:start;height:calc(100vh - 95px);border-radius:14px;border:1px solid var(--bb);overflow:hidden;background:#fff;}
     .map-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--tm);font-size:.95rem;font-weight:600;text-align:center;padding:1rem;pointer-events:none;background:var(--bgc);z-index:1;}
     .mapbox-container.map-active .map-hint{display:none;}
+    @media(max-width:1300px){.mapbox-container{position:static;height:420px;grid-column:1/-1;}}
     .rkp{padding:1.2rem;}
     .rkttl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tm);margin-bottom:.75rem;}
     .rktbs{display:flex;gap:4px;margin-bottom:.7rem;}
@@ -408,8 +409,7 @@
   <div class="right">
     <div class="cd det">
       <div class="dp">
-        <div class="de" id="dE"><div class="de-ico">🏪</div><div style="font-size:.82rem">請從左側選擇門市查看詳細分析</div></div>
-        <div id="map" class="mapbox-container"><div class="map-hint">請從左側選擇門市以顯示地圖</div></div>
+        <div class="de" id="dE"><div class="de-ico">🏪</div><div style="font-size:.82rem">請從左側清單或右側地圖選擇門市查看詳細分析</div></div>
         <div id="dC" style="display:none">
           <div class="dhd">
             <div><div class="dnm" id="dN"></div><div class="did" id="dID"></div><div class="dadr" id="dAD"></div></div>
@@ -541,6 +541,7 @@
       </div>
     </div>
   </div>
+  <div id="map" class="mapbox-container"><div class="map-hint">地圖載入中…</div></div>
   <div class="nextstep"><button class="nextbtn" onclick="switchTab('modelcheck')">想深入方法論？看模型驗證 →</button></div>
   </div>
 
@@ -894,8 +895,8 @@ function switchTab(view){
   $('viewModelcheck').style.display=view==='modelcheck'?'block':'none';
   $('viewModelaudit').style.display=view==='modelaudit'?'block':'none';
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.view===view));
-  if(view==='overview'&&map){
-    requestAnimationFrame(()=>map.resize());
+  if(view==='overview'){
+    ensureMap().then(()=>requestAnimationFrame(()=>map&&map.resize())).catch(()=>{});
   }
 }
 
@@ -1104,6 +1105,7 @@ function doSrch(){
   });
   $('sCnt').textContent=FIL.length.toLocaleString();
   rList();
+  renderMapMarkers(FIL);
 }
 
 function onCC(){
@@ -1168,8 +1170,7 @@ function renderPR(s){
 function sel(id){
   SEL=ALL.find(s=>s.id===id);rList();rDetail(SEL);
   updateMapMarker(SEL).catch(()=>{});
-  const hiPR=SEL.pr!=null&&SEL.pr>=67;
-  const target=(hiPR?document.getElementById('map'):document.querySelector('.dhd'))||document.querySelector('.det');
+  const target=document.querySelector('.dhd')||document.querySelector('.det');
   const r=target.getBoundingClientRect();
   if(r.top<0||r.top>150) target.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -1400,23 +1401,88 @@ let map, mapMarker;
 const MAPBOX_TOKEN = window.MAPBOX_TOKEN || '';
 const geocodeCache = {};
 
-async function ensureMap(){
-  if(map) return;
-  if(typeof maplibregl === 'undefined'){
-    console.warn('MapLibre GL JS 未能載入（CDN 被封鎖或離線），地圖功能停用');
-    return;
-  }
-  map = new maplibregl.Map({
-    container: 'map',
-    style: 'https://tiles.openfreemap.org/styles/liberty',
-    center: [121.6, 23.7],
-    zoom: 7.3,
-    pitch: 0,
+let mapReady=false, ensureMapPromise=null;
+
+function ensureMap(){
+  if(ensureMapPromise) return ensureMapPromise;
+  ensureMapPromise=new Promise((resolve)=>{
+    if(map){ resolve(); return; }
+    if(typeof maplibregl === 'undefined'){
+      console.warn('MapLibre GL JS 未能載入（CDN 被封鎖或離線），地圖功能停用');
+      resolve();
+      return;
+    }
+    map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/liberty',
+      center: [121.6, 23.7],
+      zoom: 7.3,
+      pitch: 0,
+    });
+    map.addControl(new maplibregl.NavigationControl({showCompass:true, showZoom:true}), 'top-right');
+    map.on('load', () => {
+      map.addSource('stores', {
+        type: 'geojson',
+        data: {type:'FeatureCollection',features:[]},
+        cluster: true,
+        clusterMaxZoom: 14,
+        clusterRadius: 45,
+      });
+      map.addLayer({
+        id:'clusters', type:'circle', source:'stores', filter:['has','point_count'],
+        paint:{
+          'circle-color':['step',['get','point_count'],'#60a5fa',50,'#3b82f6',200,'#1d4ed8'],
+          'circle-radius':['step',['get','point_count'],13,50,17,200,22],
+          'circle-stroke-width':2,'circle-stroke-color':'#fff'
+        }
+      });
+      map.addLayer({
+        id:'cluster-count', type:'symbol', source:'stores', filter:['has','point_count'],
+        layout:{'text-field':'{point_count_abbreviated}','text-size':11,'text-font':['Noto Sans Regular']},
+        paint:{'text-color':'#fff'}
+      });
+      map.addLayer({
+        id:'unclustered-point', type:'circle', source:'stores', filter:['!',['has','point_count']],
+        paint:{
+          'circle-color':'#ef4444','circle-radius':6,
+          'circle-stroke-width':1.5,'circle-stroke-color':'#fff'
+        }
+      });
+      map.on('click','clusters',(e)=>{
+        const features=map.queryRenderedFeatures(e.point,{layers:['clusters']});
+        const clusterId=features[0].properties.cluster_id;
+        map.getSource('stores').getClusterExpansionZoom(clusterId,(err,zoom)=>{
+          if(err) return;
+          map.easeTo({center:features[0].geometry.coordinates,zoom});
+        });
+      });
+      map.on('click','unclustered-point',(e)=>{
+        sel(e.features[0].properties.id);
+      });
+      ['clusters','unclustered-point'].forEach(l=>{
+        map.on('mouseenter',l,()=>map.getCanvas().style.cursor='pointer');
+        map.on('mouseleave',l,()=>map.getCanvas().style.cursor='');
+      });
+      map.resize();
+      mapReady=true;
+      $('map').classList.add('map-active');
+      renderMapMarkers(FIL);
+      resolve();
+    });
+    window.addEventListener('resize', () => map && map.resize());
   });
-  map.addControl(new maplibregl.NavigationControl({showCompass:true, showZoom:true}), 'top-right');
-  map.on('load', () => map.resize());
-  window.addEventListener('resize', () => map && map.resize());
-  $('map').classList.add('map-active');
+  return ensureMapPromise;
+}
+
+function renderMapMarkers(list){
+  if(!map||!mapReady) return;
+  const feats=(list||[]).filter(s=>s.lnglat).map(s=>({
+    type:'Feature',
+    geometry:{type:'Point',coordinates:s.lnglat},
+    properties:{id:s.id}
+  }));
+  const src=map.getSource('stores');
+  if(src) src.setData({type:'FeatureCollection',features:feats});
 }
 
 async function geocodeAddress(addr){
