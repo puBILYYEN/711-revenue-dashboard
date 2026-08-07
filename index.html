@@ -7,8 +7,8 @@
   <meta name="description" content="7-11 全台 7,313 間門市月營收 AI 雙層模型估算查詢看板">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" rel="stylesheet" />
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
   <script src="mapbox-config.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -1399,20 +1399,19 @@ const MAPBOX_TOKEN = window.MAPBOX_TOKEN || '';
 const geocodeCache = {};
 
 async function ensureMap(){
-  if(map || !MAPBOX_TOKEN) return;
-  if(typeof mapboxgl === 'undefined'){
-    console.warn('Mapbox GL JS 未能載入（CDN 被封鎖或離線），地圖功能停用');
+  if(map) return;
+  if(typeof maplibregl === 'undefined'){
+    console.warn('MapLibre GL JS 未能載入（CDN 被封鎖或離線），地圖功能停用');
     return;
   }
-  mapboxgl.accessToken = MAPBOX_TOKEN;
-  map = new mapboxgl.Map({
+  map = new maplibregl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/light-v11',
+    style: 'https://tiles.openfreemap.org/styles/liberty',
     center: [121.6, 23.7],
     zoom: 7.3,
     pitch: 0,
   });
-  map.addControl(new mapboxgl.NavigationControl({showCompass:true, showZoom:true}), 'top-right');
+  map.addControl(new maplibregl.NavigationControl({showCompass:true, showZoom:true}), 'top-right');
   map.on('load', () => map.resize());
   window.addEventListener('resize', () => map && map.resize());
   $('map').classList.add('map-active');
@@ -1441,9 +1440,9 @@ async function updateMapMarker(s){
   s.lnglat = coords;
   map.flyTo({center: coords, zoom: 13});
   if(mapMarker) mapMarker.remove();
-  mapMarker = new mapboxgl.Marker({color: '#ef4444'})
+  mapMarker = new maplibregl.Marker({color: '#ef4444'})
     .setLngLat(coords)
-    .setPopup(new mapboxgl.Popup({offset: 25}).setHTML(`<strong>${s.name}</strong><div style="font-size:.85rem;margin-top:.3rem;line-height:1.3;">${s.addr}</div>`))
+    .setPopup(new maplibregl.Popup({offset: 25}).setHTML(`<strong>${s.name}</strong><div style="font-size:.85rem;margin-top:.3rem;line-height:1.3;">${s.addr}</div>`))
     .addTo(map);
   mapMarker.togglePopup();
 }
