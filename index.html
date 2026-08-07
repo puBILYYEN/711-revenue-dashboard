@@ -1168,9 +1168,10 @@ function renderPR(s){
 function sel(id){
   SEL=ALL.find(s=>s.id===id);rList();rDetail(SEL);
   updateMapMarker(SEL).catch(()=>{});
-  const det=document.querySelector('.det');
-  const r=det.getBoundingClientRect();
-  if(r.top<0||r.top>150) det.scrollIntoView({behavior:'smooth',block:'start'});
+  const hiPR=SEL.pr!=null&&SEL.pr>=67;
+  const target=(hiPR?document.getElementById('map'):document.querySelector('.prbox'))||document.querySelector('.det');
+  const r=target.getBoundingClientRect();
+  if(r.top<0||r.top>150) target.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function rDetail(s){
