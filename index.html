@@ -282,6 +282,12 @@
     .map-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--tm);font-size:.95rem;font-weight:600;text-align:center;padding:1rem;pointer-events:none;background:var(--bgc);z-index:1;}
     .mapbox-container.map-active .map-hint{display:none;}
     @media(max-width:1300px){.mapbox-container{position:static;height:420px;grid-column:1/-1;}}
+    .mapctrl{position:absolute;top:10px;left:10px;z-index:5;background:rgba(255,255,255,.96);border:1px solid var(--bb);border-radius:10px;padding:.6rem .7rem;font-family:inherit;box-shadow:0 2px 10px rgba(0,0,0,.12);max-width:190px;}
+    .mapctrl-ttl{font-size:.66rem;font-weight:700;color:#444;margin-bottom:.4rem;letter-spacing:.02em;}
+    .mcbrand{display:flex;align-items:center;gap:.35rem;font-size:.72rem;color:#333;padding:.2rem 0;cursor:pointer;user-select:none;}
+    .mcbrand input{margin:0;cursor:pointer;}
+    .mcdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;display:inline-block;}
+    .mccnt{margin-left:auto;color:#888;font-size:.66rem;}
     .rkp{padding:1.2rem;}
     .rkttl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tm);margin-bottom:.75rem;}
     .rktbs{display:flex;gap:4px;margin-bottom:.7rem;}
@@ -541,7 +547,16 @@
       </div>
     </div>
   </div>
-  <div id="map" class="mapbox-container"><div class="map-hint">地圖載入中…</div></div>
+  <div id="map" class="mapbox-container">
+    <div class="map-hint">地圖載入中…</div>
+    <div class="mapctrl" id="mapCtrl">
+      <div class="mapctrl-ttl">🏪 競爭品牌圖層（可複選）</div>
+      <label class="mcbrand"><input type="checkbox" data-brand="fm" onchange="toggleBrand(this)"><span class="mcdot" style="background:#00a651"></span>全家 FamilyMart<span class="mccnt" id="mcCntFm">—</span></label>
+      <label class="mcbrand"><input type="checkbox" data-brand="hl" onchange="toggleBrand(this)"><span class="mcdot" style="background:#e4002b"></span>萊爾富 Hi-Life<span class="mccnt" id="mcCntHl">—</span></label>
+      <label class="mcbrand"><input type="checkbox" data-brand="ok" onchange="toggleBrand(this)"><span class="mcdot" style="background:#f7a600"></span>OK mart<span class="mccnt" id="mcCntOk">—</span></label>
+      <label class="mcbrand"><input type="checkbox" data-brand="px" onchange="toggleBrand(this)"><span class="mcdot" style="background:#8b5cf6"></span>美廉社等<span class="mccnt" id="mcCntPx">—</span><span class="rfbb" title="這個分類的原始資料標籤是「美廉社」，但實測內容混雜：約31%是美廉社本店，38%是全聯，11%是家樂福，其餘為好市多/愛買/楓康等——這是資料本身標籤不純，不是我們分類錯誤，勾選前請留意。">標籤混雜 ⓘ</span></label>
+    </div>
+  </div>
   <div class="nextstep"><button class="nextbtn" onclick="switchTab('modelcheck')">想深入方法論？看模型驗證 →</button></div>
   </div>
 
@@ -760,6 +775,7 @@ const BELL_COUNTS=[0,1,1,1,3,3,5,4,2,3,9,4,7,5,9,24,49,217,717,2129,3095,885,43,
 const BELL_CENTERS=[-0.02925,-0.02775,-0.02625,-0.02475,-0.02325,-0.02175,-0.02025,-0.01875,-0.01725,-0.01575,-0.01425,-0.01275,-0.01125,-0.00975,-0.00825,-0.00675,-0.00525,-0.00375,-0.00225,-0.00075,0.00075,0.00225,0.00375,0.00525,0.00675,0.00825,0.00975,0.01125,0.01275,0.01425,0.01575,0.01725,0.01875,0.02025,0.02175,0.02325,0.02475,0.02625,0.02775,0.02925];
 const BELL_STAT={mean:0.0000073,std:0.004544,nInRange:7271,nTotal:7313};
 let ALL=[],FIL=[],SEL=null,SC=62,SO='rev',RK='top',MAX_REV=1;
+let COMP=[],ACTIVE_BRANDS=new Set();
 
 const rm=v=>(v/1e4).toFixed(1);
 const rk=v=>v>=1e7?(v/1e4).toFixed(0)+'萬':v>=1e4?(v/1e4).toFixed(1)+'萬':v.toLocaleString();
@@ -814,6 +830,7 @@ async function init() {
   cities.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cf.appendChild(o);});
   
   updHd(); rList(); rZP(zeropoi); rL1(); rL2(); setRk('top'); rTick();
+  fetch('data_competitors.json').then(r=>r.json()).then(d=>{COMP=d;updCompCounts();renderCompetitors();}).catch(e=>console.warn('競爭店資料載入失敗',e));
   try {
     await ensureMap();
   } catch(e) {
@@ -1459,7 +1476,29 @@ function ensureMap(){
       map.on('click','unclustered-point',(e)=>{
         sel(e.features[0].properties.id);
       });
-      ['clusters','unclustered-point'].forEach(l=>{
+      map.addSource('competitors', {
+        type: 'geojson',
+        data: {type:'FeatureCollection',features:[]},
+      });
+      const BRAND_COLOR={fm:'#00a651',hl:'#e4002b',ok:'#f7a600',px:'#8b5cf6'};
+      map.addLayer({
+        id:'competitor-points', type:'circle', source:'competitors',
+        filter:['in',['get','b'],['literal',[]]],
+        paint:{
+          'circle-color':['match',['get','b'],'fm',BRAND_COLOR.fm,'hl',BRAND_COLOR.hl,'ok',BRAND_COLOR.ok,'px',BRAND_COLOR.px,'#999'],
+          'circle-radius':4.5,
+          'circle-stroke-width':1,'circle-stroke-color':'#fff',
+          'circle-opacity':.85
+        }
+      });
+      map.on('click','competitor-points',(e)=>{
+        const p=e.features[0].properties;
+        new maplibregl.Popup({offset:10,focusAfterOpen:false})
+          .setLngLat(e.features[0].geometry.coordinates)
+          .setHTML(`<strong>${p.n}</strong>`)
+          .addTo(map);
+      });
+      ['clusters','unclustered-point','competitor-points'].forEach(l=>{
         map.on('mouseenter',l,()=>map.getCanvas().style.cursor='pointer');
         map.on('mouseleave',l,()=>map.getCanvas().style.cursor='');
       });
@@ -1467,11 +1506,36 @@ function ensureMap(){
       mapReady=true;
       $('map').classList.add('map-active');
       renderMapMarkers(FIL);
+      renderCompetitors();
       resolve();
     });
     window.addEventListener('resize', () => map && map.resize());
   });
   return ensureMapPromise;
+}
+
+function updCompCounts(){
+  const counts={fm:0,hl:0,ok:0,px:0};
+  COMP.forEach(x=>{if(counts[x.b]!=null)counts[x.b]++;});
+  $('mcCntFm').textContent=counts.fm.toLocaleString();
+  $('mcCntHl').textContent=counts.hl.toLocaleString();
+  $('mcCntOk').textContent=counts.ok.toLocaleString();
+  $('mcCntPx').textContent=counts.px.toLocaleString();
+}
+
+function renderCompetitors(){
+  if(!map||!mapReady||!COMP.length) return;
+  const feats=COMP.map(x=>({type:'Feature',geometry:{type:'Point',coordinates:x.c},properties:{b:x.b,n:x.n}}));
+  const src=map.getSource('competitors');
+  if(src) src.setData({type:'FeatureCollection',features:feats});
+}
+
+function toggleBrand(el){
+  const b=el.dataset.brand;
+  el.checked?ACTIVE_BRANDS.add(b):ACTIVE_BRANDS.delete(b);
+  if(map&&map.getLayer('competitor-points')){
+    map.setFilter('competitor-points',['in',['get','b'],['literal',[...ACTIVE_BRANDS]]]);
+  }
 }
 
 function renderMapMarkers(list){
