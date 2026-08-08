@@ -552,7 +552,7 @@
     <div class="mapctrl" id="mapCtrl">
       <div class="mapctrl-ttl">🏪 競爭品牌圖層（可複選）</div>
       <label class="mcbrand"><input type="checkbox" data-brand="fm" onchange="toggleBrand(this)"><span class="mcdot" style="background:#00a651"></span>全家 FamilyMart<span class="mccnt" id="mcCntFm">—</span></label>
-      <label class="mcbrand"><input type="checkbox" data-brand="hl" onchange="toggleBrand(this)"><span class="mcdot" style="background:#ec4899"></span>萊爾富 Hi-Life<span class="mccnt" id="mcCntHl">—</span></label>
+      <label class="mcbrand"><input type="checkbox" data-brand="hl" onchange="toggleBrand(this)"><span class="mcdot" style="background:#f9a8d4"></span>萊爾富 Hi-Life<span class="mccnt" id="mcCntHl">—</span></label>
       <label class="mcbrand"><input type="checkbox" data-brand="ok" onchange="toggleBrand(this)"><span class="mcdot" style="background:#f7a600"></span>OK mart<span class="mccnt" id="mcCntOk">—</span></label>
       <label class="mcbrand"><input type="checkbox" data-brand="px" onchange="toggleBrand(this)"><span class="mcdot" style="background:#8b5cf6"></span>美廉社等<span class="mccnt" id="mcCntPx">—</span><span class="rfbb" title="這個分類的原始資料標籤是「美廉社」，但實測內容混雜：約31%是美廉社本店，38%是全聯，11%是家樂福，其餘為好市多/愛買/楓康等——這是資料本身標籤不純，不是我們分類錯誤，勾選前請留意。">標籤混雜 ⓘ</span></label>
     </div>
@@ -1480,7 +1480,7 @@ function ensureMap(){
         type: 'geojson',
         data: {type:'FeatureCollection',features:[]},
       });
-      const BRAND_COLOR={fm:'#00a651',hl:'#ec4899',ok:'#f7a600',px:'#8b5cf6'};
+      const BRAND_COLOR={fm:'#00a651',hl:'#f9a8d4',ok:'#f7a600',px:'#8b5cf6'};
       map.addLayer({
         id:'competitor-points', type:'circle', source:'competitors',
         filter:['in',['get','b'],['literal',[]]],
