@@ -306,7 +306,7 @@
     .maplegend{position:absolute;bottom:28px;left:10px;z-index:5;background:rgba(255,255,255,.96);border:1px solid var(--bb);border-radius:10px;padding:.55rem .7rem;box-shadow:0 2px 10px rgba(0,0,0,.12);max-width:190px;}
     .maplegend-ttl{font-size:.68rem;font-weight:700;color:#222;margin-bottom:.35rem;}
     .maplegend-row{display:flex;align-items:center;gap:.4rem;font-size:.68rem;color:#333;padding:.15rem 0;}
-    .maplegend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 1.5px #fff,0 0 0 2.5px rgba(0,0,0,.15);}
+    .maplegend-dot{width:11px;height:9px;flex-shrink:0;clip-path:polygon(0 0,100% 25%,0 50%);}
     .maplegend-note{font-size:.62rem;color:#888;margin-top:.3rem;line-height:1.5;}
     .rkp{padding:1.2rem;}
     .rkttl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tm);margin-bottom:.75rem;}
@@ -1479,6 +1479,16 @@ function ensureMap(){
     });
     map.addControl(new maplibregl.NavigationControl({showCompass:true, showZoom:true}), 'top-right');
     map.on('load', () => {
+      [['flag-hi','#10b981'],['flag-mid','#f59e0b'],['flag-lo','#ef4444'],['flag-na','#9ca3af']].forEach(([name,color])=>{
+        const c=document.createElement('canvas'); c.width=24; c.height=24;
+        const ctx=c.getContext('2d');
+        ctx.strokeStyle='#374151'; ctx.lineWidth=2; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(4,22); ctx.lineTo(4,3); ctx.stroke();
+        ctx.fillStyle=color;
+        ctx.beginPath(); ctx.moveTo(4,3); ctx.lineTo(19,7.5); ctx.lineTo(4,12); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=1; ctx.stroke();
+        map.addImage(name, ctx.getImageData(0,0,24,24));
+      });
       map.addSource('stores', {
         type: 'geojson',
         data: {type:'FeatureCollection',features:[]},
@@ -1500,11 +1510,13 @@ function ensureMap(){
         paint:{'text-color':'#fff'}
       });
       map.addLayer({
-        id:'unclustered-point', type:'circle', source:'stores', filter:['!',['has','point_count']],
-        paint:{
-          'circle-color':['match',['get','tier'],'hi','#10b981','mid','#f59e0b','lo','#ef4444','#9ca3af'],
-          'circle-radius':7,
-          'circle-stroke-width':2,'circle-stroke-color':'#fff'
+        id:'unclustered-point', type:'symbol', source:'stores', filter:['!',['has','point_count']],
+        layout:{
+          'icon-image':['match',['get','tier'],'hi','flag-hi','mid','flag-mid','lo','flag-lo','flag-na'],
+          'icon-size':1,
+          'icon-anchor':'bottom',
+          'icon-allow-overlap':true,
+          'icon-ignore-placement':true
         }
       });
       map.on('click','clusters',(e)=>{
