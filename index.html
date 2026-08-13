@@ -303,6 +303,11 @@
     .mcbrand input{margin:0;cursor:pointer;}
     .mcdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;display:inline-block;}
     .mccnt{margin-left:auto;color:#888;font-size:.66rem;}
+    .maplegend{position:absolute;bottom:28px;left:10px;z-index:5;background:rgba(255,255,255,.96);border:1px solid var(--bb);border-radius:10px;padding:.55rem .7rem;box-shadow:0 2px 10px rgba(0,0,0,.12);max-width:190px;}
+    .maplegend-ttl{font-size:.68rem;font-weight:700;color:#222;margin-bottom:.35rem;}
+    .maplegend-row{display:flex;align-items:center;gap:.4rem;font-size:.68rem;color:#333;padding:.15rem 0;}
+    .maplegend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 1.5px #fff,0 0 0 2.5px rgba(0,0,0,.15);}
+    .maplegend-note{font-size:.62rem;color:#888;margin-top:.3rem;line-height:1.5;}
     .rkp{padding:1.2rem;}
     .rkttl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tm);margin-bottom:.75rem;}
     .rktbs{display:flex;gap:4px;margin-bottom:.7rem;}
@@ -570,6 +575,13 @@
       <label class="mcbrand"><input type="checkbox" data-brand="hl" onchange="toggleBrand(this)"><span class="mcdot" style="background:#f9a8d4"></span>萊爾富 Hi-Life<span class="mccnt" id="mcCntHl">—</span></label>
       <label class="mcbrand"><input type="checkbox" data-brand="ok" onchange="toggleBrand(this)"><span class="mcdot" style="background:#f7a600"></span>OK mart<span class="mccnt" id="mcCntOk">—</span></label>
       <label class="mcbrand"><input type="checkbox" data-brand="px" onchange="toggleBrand(this)"><span class="mcdot" style="background:#8b5cf6"></span>美廉社等<span class="mccnt" id="mcCntPx">—</span><span class="rfbb" title="這個分類的原始資料標籤是「美廉社」，但實測內容混雜：約31%是美廉社本店，38%是全聯，11%是家樂福，其餘為好市多/愛買/楓康等——這是資料本身標籤不純，不是我們分類錯誤，勾選前請留意。">標籤混雜 ⓘ</span></label>
+    </div>
+    <div class="maplegend">
+      <div class="maplegend-ttl">🚩 同鄉鎮插旗雷達</div>
+      <div class="maplegend-row"><span class="maplegend-dot" style="background:#10b981"></span>較佳地點（同鄉鎮 PR≥67）</div>
+      <div class="maplegend-row"><span class="maplegend-dot" style="background:#f59e0b"></span>中等地點（PR 34～66）</div>
+      <div class="maplegend-row"><span class="maplegend-dot" style="background:#ef4444"></span>較弱地點（PR&lt;34）</div>
+      <div class="maplegend-note">放大地圖到單一鄉鎮，就能看到每家店的插旗顏色；藍色數字圈是還沒展開的門市群聚。</div>
     </div>
   </div>
   <div class="nextstep"><button class="nextbtn" onclick="switchTab('modelcheck')">想深入方法論？看模型驗證 →</button></div>
@@ -1471,8 +1483,8 @@ function ensureMap(){
         type: 'geojson',
         data: {type:'FeatureCollection',features:[]},
         cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 45,
+        clusterMaxZoom: 12,
+        clusterRadius: 35,
       });
       map.addLayer({
         id:'clusters', type:'circle', source:'stores', filter:['has','point_count'],
@@ -1490,8 +1502,9 @@ function ensureMap(){
       map.addLayer({
         id:'unclustered-point', type:'circle', source:'stores', filter:['!',['has','point_count']],
         paint:{
-          'circle-color':'#ef4444','circle-radius':6,
-          'circle-stroke-width':1.5,'circle-stroke-color':'#fff'
+          'circle-color':['match',['get','tier'],'hi','#10b981','mid','#f59e0b','lo','#ef4444','#9ca3af'],
+          'circle-radius':7,
+          'circle-stroke-width':2,'circle-stroke-color':'#fff'
         }
       });
       map.on('click','clusters',(e)=>{
@@ -1567,12 +1580,17 @@ function toggleBrand(el){
   }
 }
 
+function prTier(s){
+  if(s.pr==null) return 'na';
+  return s.pr>=67?'hi':s.pr>=34?'mid':'lo';
+}
+
 function renderMapMarkers(list){
   if(!map||!mapReady) return;
   const feats=(list||[]).filter(s=>s.lnglat).map(s=>({
     type:'Feature',
     geometry:{type:'Point',coordinates:s.lnglat},
-    properties:{id:s.id}
+    properties:{id:s.id,tier:prTier(s)}
   }));
   const src=map.getSource('stores');
   if(src) src.setData({type:'FeatureCollection',features:feats});
