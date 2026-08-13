@@ -266,6 +266,14 @@
     .ics{font-size:.62rem;color:var(--tm);}
     .scrow{display:flex;align-items:center;justify-content:space-around;background:rgba(255,255,255,.03);border:1px solid var(--b);border-radius:9px;padding:.7rem 1rem;margin-bottom:.9rem;}
     .whyttl{font-size:.72rem;font-weight:700;color:var(--tm);margin:.2rem 0 .5rem;}
+    .decbox{background:var(--bgc);border:1px solid var(--b);border-radius:11px;padding:.8rem 1rem;margin-bottom:.7rem;}
+    .decbox-ttl{font-size:.72rem;font-weight:700;color:var(--tx);margin-bottom:.45rem;}
+    .decbox-body{font-size:.75rem;color:var(--tm);line-height:1.75;}
+    .decbox-body b{color:var(--tx);}
+    .satpill{display:inline-block;padding:1px 8px;border-radius:20px;font-size:.68rem;font-weight:700;margin-left:2px;}
+    .satpill.hi{background:rgba(239,68,68,.18);color:#ef4444;}
+    .satpill.mid{background:rgba(245,158,11,.18);color:#f59e0b;}
+    .satpill.lo{background:rgba(16,185,129,.18);color:#10b981;}
     .sci{text-align:center;}
     .scil{font-size:.6rem;color:var(--tm);margin-bottom:2px;}
     .sciv{font-size:1.1rem;font-weight:800;}
@@ -336,6 +344,7 @@
     .zplist::-webkit-scrollbar{width:3px;}
     .zplist::-webkit-scrollbar-thumb{background:rgba(249,115,22,.3);border-radius:3px;}
     .zpit{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:rgba(249,115,22,.04);border:1px solid rgba(249,115,22,.12);border-radius:7px;cursor:pointer;transition:all .15s;}
+    .zprk{font-size:.68rem;font-weight:800;color:var(--or);min-width:16px;text-align:center;flex-shrink:0;}
     .zpit:hover{background:rgba(249,115,22,.09);border-color:rgba(249,115,22,.28);}
     .zpinm{font-size:.8rem;font-weight:600;}
     .zpilc{font-size:.65rem;color:var(--tm);margin-top:1px;}
@@ -467,6 +476,14 @@
               <div class="spill" id="p65" onclick="setSc(65)"><div class="spillp">65% 份額</div><div class="spillv" id="p65v">—</div></div>
             </div>
           </div>
+          <div class="decbox">
+            <div class="decbox-ttl">🎯 建議業績目標區間——同鄉鎮同層比較，不套全公司統一標準</div>
+            <div class="decbox-body" id="dGoal">—</div>
+          </div>
+          <div class="decbox">
+            <div class="decbox-ttl">🏬 競爭飽和度警示——新址評估用</div>
+            <div class="decbox-body" id="dSat">—</div>
+          </div>
           <div class="whyttl">👉 為什麼是這個等級？以下 6 項數據，就是這家店同鄉鎮排名的依據</div>
           <div class="ig">
             <div class="ic"><div class="icl">村里人口</div><div class="icv" id="iPop">—</div><div class="ics">人</div></div>
@@ -565,7 +582,7 @@
     <div class="cd zpc">
       <div class="zpp">
         <div class="zphd"><span style="font-size:1.1rem">⚠️</span><span class="zpttl">待人工核對：Zero POI 門市</span><span class="zpcnt" id="zCnt">共 0 家</span></div>
-        <div class="zpnote">以下門市周邊 POI 資料為零，可能影響層二估算準確度，建議人工確認地址或補齊特徵。</div>
+        <div class="zpnote">以下門市周邊 POI 資料為零，可能影響層二估算準確度，建議人工確認地址或補齊特徵。<b style="color:var(--tx)">已依村里人口由高到低排序</b>——人口越多的門市，資料補齊後對整體估算的影響也越大，建議優先處理。</div>
         <div class="zplist" id="ZL"></div>
       </div>
     </div>
@@ -820,6 +837,7 @@ const BELL_CENTERS=[-0.02925,-0.02775,-0.02625,-0.02475,-0.02325,-0.02175,-0.020
 const BELL_STAT={mean:0.0000073,std:0.004544,nInRange:7271,nTotal:7313};
 let ALL=[],FIL=[],SEL=null,SC=62,SO='rev',RK='top',MAX_REV=1;
 let COMP=[],ACTIVE_BRANDS=new Set();
+let COMP_SUMMARY={};
 
 const rm=v=>(v/1e4).toFixed(1);
 const rk=v=>v>=1e7?(v/1e4).toFixed(0)+'萬':v>=1e4?(v/1e4).toFixed(1)+'萬':v.toLocaleString();
@@ -875,6 +893,7 @@ async function init() {
   
   updHd(); rList(); rZP(zeropoi); rL1(); rL2(); setRk('top'); rTick();
   fetch('data_competitors.json').then(r=>r.json()).then(d=>{COMP=d;updCompCounts();renderCompetitors();}).catch(e=>console.warn('競爭店資料載入失敗',e));
+  fetch('data_comp_summary.json').then(r=>r.json()).then(d=>{COMP_SUMMARY=d;if(SEL)renderSaturation(SEL);}).catch(e=>console.warn('競爭飽和度資料載入失敗',e));
   try {
     await ensureMap();
   } catch(e) {
@@ -1228,6 +1247,52 @@ function renderPR(s){
   $('dPRDesc').textContent=`同縣市同鄉鎮內，依綜合分數排序計算的相對名次——這是本系統目前唯一建議直接使用的比較方式，不建議跨鄉鎮／跨縣市比較。PR ${pr} 代表贏過鄉鎮內 ${pr}% 的收錄門市。`;
 }
 
+function median(arr){
+  if(!arr.length) return 0;
+  const s=[...arr].sort((a,b)=>a-b);
+  const mid=Math.floor(s.length/2);
+  return s.length%2?s[mid]:(s[mid-1]+s[mid])/2;
+}
+
+function renderGoalBand(s){
+  const el=$('dGoal');
+  if(s.pr==null){
+    el.innerHTML='這個鄉鎮只有這一家收錄門市，沒有同鄉鎮同業可以比較，無法給出目標區間建議。';
+    return;
+  }
+  const rk2='rev'+SC;
+  const peers=ALL.filter(x=>x.city===s.city&&x.town===s.town);
+  const groups={hi:[],mid:[],lo:[]};
+  peers.forEach(x=>{
+    if(x.pr==null) return;
+    const t=x.pr>=67?'hi':x.pr>=34?'mid':'lo';
+    groups[t].push(x[rk2]||0);
+  });
+  const selTier=s.pr>=67?'hi':s.pr>=34?'mid':'lo';
+  const tierName={hi:'較佳',mid:'中等',lo:'較弱'};
+  const rows=['hi','mid','lo'].map(t=>{
+    if(!groups[t].length) return null;
+    const med=median(groups[t]);
+    const mark=t===selTier?'（← 這家店在這一層）':'';
+    return `${tierName[t]}地點${groups[t].length}家中位數 <b>${rm(med)} 萬</b>${mark}`;
+  }).filter(Boolean).join('・');
+  el.innerHTML=`${s.city}${s.town}同層比較：${rows}。這家店目前屬於「<b>${tierName[selTier]}</b>」地點，設定業績目標建議參考同層區間，不要套用全公司統一標準——較弱地點做到同樣營業額，其實已經是超水準表現。`;
+}
+
+function renderSaturation(s){
+  const el=$('dSat');
+  const rec=COMP_SUMMARY[s.id];
+  if(!rec){
+    el.innerHTML='這家店附近沒有查到競爭品牌調查資料（不在本次調查範圍內）。';
+    return;
+  }
+  const tier=rec.total<=1?'lo':rec.total<=7?'mid':'hi';
+  const tierName={lo:'偏低',mid:'中等',hi:'偏高'};
+  const brandName={fm:'全家',hl:'萊爾富',ok:'OK',px:'美廉社等'};
+  const parts=['fm','hl','ok','px'].filter(b=>rec[b]>0).map(b=>`${brandName[b]} ${rec[b]}家`).join('、');
+  el.innerHTML=`門市 200 公尺內共 <b>${rec.total} 家</b>競爭品牌門市（${parts||'無明細'}），飽和度<span class="satpill ${tier}">${tierName[tier]}</span>。評估附近新址時，飽和度偏高的區域建議降低展店優先序或改採差異化品項因應。`;
+}
+
 function sel(id){
   SEL=ALL.find(s=>s.id===id);rList();rDetail(SEL);
   updateMapMarker(SEL).catch(()=>{});
@@ -1244,6 +1309,8 @@ function rDetail(s){
   $('dZB').style.display=isZP?'block':'none';$('dSC').textContent=SC+'%';
   $('dRM').textContent=rm(rev);
   renderPR(s);
+  renderGoalBand(s);
+  renderSaturation(s);
   const lo=s.ciLo||0,hi=s.ciHi||0;
   $('dCL').textContent='下限 '+rk(lo);$('dCH').textContent=rk(hi)+' 上限';$('dCR').textContent=rk(lo)+' ～ '+rk(hi);
   const mx=MAX_REV||1;
@@ -1275,9 +1342,10 @@ function rL2(){
 
 function rZP(ZP){
   $('zCnt').textContent='共 '+ZP.length+' 家';
-  $('ZL').innerHTML=ZP.map(s=>{
+  const sorted=[...ZP].sort((a,b)=>(parseInt(b.population)||0)-(parseInt(a.population)||0));
+  $('ZL').innerHTML=sorted.map((s,i)=>{
     const name=s.storeName||'',addr=(s.addr||'').replace(/'/g,"\\'");
-    return `<div class="zpit" onclick="sel('${s.storeId}')"><div style="flex:1;min-width:0"><div class="zpinm">${name}</div><div class="zpilc">${s.city} ${s.town}</div></div>` +
+    return `<div class="zpit" onclick="sel('${s.storeId}')"><div class="zprk">${i+1}</div><div style="flex:1;min-width:0"><div class="zpinm">${name}</div><div class="zpilc">${s.city} ${s.town}</div></div>` +
       `<div class="zpipop">人口 ${s.population}</div>` +
       `<button class="zprbtn" onclick="event.stopPropagation();zpR('${name}','${addr}')">核對</button></div>`;
   }).join('');
