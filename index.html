@@ -96,6 +96,21 @@
     .mckdesc code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;color:#67e8f9;font-family:monospace;}
     .mckcon{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:.9rem 1.1rem;font-size:.72rem;color:var(--tm);line-height:1.7;}
     .mckcon b{color:var(--tx);}
+    .trustttl{font-size:.82rem;font-weight:700;color:var(--tx);margin-bottom:.7rem;}
+    .trustgrid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:1.1rem;}
+    @media(max-width:900px){.trustgrid{grid-template-columns:1fr;}}
+    .trustcol{border-radius:12px;padding:1rem 1.1rem;}
+    .trustcol.yes{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.3);}
+    .trustcol.no{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.28);}
+    .trusthd{font-size:.78rem;font-weight:700;margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem;}
+    .trustcol.yes .trusthd{color:#10b981;}
+    .trustcol.no .trusthd{color:#ef4444;}
+    .trustitem{font-size:.75rem;color:var(--tm);line-height:1.65;padding:.5rem 0;border-top:1px dashed var(--b);}
+    .trustitem:first-of-type{border-top:none;padding-top:0;}
+    .trustitem b{color:var(--tx);}
+    .trustitem .tinum{font-weight:800;}
+    .trustcol.yes .tinum{color:#10b981;}
+    .trustcol.no .tinum{color:#ef4444;}
     .evidhr{font-size:.72rem;color:var(--tm);text-align:center;margin:1rem 0 .8rem;text-transform:uppercase;letter-spacing:.05em;}
     .chartcard{background:linear-gradient(135deg,#09132a,#0e2040,#09132a);border-radius:12px;padding:1rem 1.1rem 1.2rem;margin-bottom:1.1rem;}
     .charthd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem;}
@@ -564,6 +579,20 @@
     <div class="cd mck">
       <div class="mckttl">🎯 誠實邊界：贏不贏過虛無模型，才是第一關</div>
       <div class="mcksub">這份系統最強的地方不是「模型準不準」，是「知道自己的模型在哪裡失效，而且是自己找出來的」——敘事主軸不是「做了一個很準的模型」，是「在一個沒有標準答案的分配題上，做出一套說得出理由、也經得起否證的方法」。</div>
+
+      <div class="trustttl">💼 這套系統現在能幫你做兩件事</div>
+      <div class="trustgrid">
+        <div class="trustcol yes">
+          <div class="trusthd">✅ 現在就能用</div>
+          <div class="trustitem"><b>① 同鄉鎮插旗雷達</b>——把同一鄉鎮內的門市分成三層（較佳／中等／較弱地點潛力），用來公平比較地點條件、評估候選新址、分派業績目標。外部所得資料驗證過方向正確：分辨準確率 <span class="tinum">52.2%</span>，顯著高於隨機猜測的 48.1%（4.2 個標準差，n＝5萬多組門市配對）。</div>
+          <div class="trustitem"><b>② 校準預備艦</b>——全台 7,313 家門市的乾淨特徵表（人口、POI、競爭店密度）已經整理好、可重複驗證。一旦拿到幾百家店的真實 POS 月營收，這套系統可以直接拿來校準成正式預測工具，不用重新建置。</div>
+        </div>
+        <div class="trustcol no">
+          <div class="trusthd">⚠️ 現在還不能用</div>
+          <div class="trustitem"><b>① 精確金額</b>——「預估營收」的數字不能拿去做財務決策：拆到縣市層級比對，模型誤差反而輸給「全部門市直接平分」的最陽春對照組。</div>
+          <div class="trustitem"><b>② 跨鄉鎮／跨縣市排名</b>——只在「同一鄉鎮內」驗證過方向正確，拿去比不同鄉鎮、不同縣市誰賺得多，目前沒有數據支撐。</div>
+        </div>
+      </div>
 
       <div class="mckcon">
         <b>結論先講，三句話</b>：
