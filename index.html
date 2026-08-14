@@ -684,7 +684,7 @@
   <div id="viewModelcheck" class="tabview" style="display:none">
     <div class="cd mck">
       <div class="mckttl">🔬 PCA+熵權法 ≈ Ridge 迴歸：反覆驗證的模型方法紀錄</div>
-      <div class="mcksub">「層二」的替代模型能不能站得住腳，不能只算一次就採用——我們拿 7,313 筆真實資料做了多輪交叉驗證，逐步排除掉不夠準的假設，才鎖定目前的做法。</div>
+      <div class="mcksub">「層二」如果沒有組長的原始程式碼，只靠 8 個特徵，能不能獨立重建出幾乎一樣的分數？——我們拿 7,313 筆真實資料做了多輪交叉驗證，逐步排除掉不夠準的假設，最後證明可以做到 R²=0.9996。這是一次穩健性驗證，<b>不是目前儀表板實際使用的計算方式</b>：儀表板上每一個層二分數，用的都是組長模型的官方輸出本尊。</div>
 
       <div class="chartcard">
         <div class="charthd">
@@ -736,14 +736,14 @@
           <div class="mckdesc">用「極端值處理→正規化→加權求和」流程反覆試了多組參數，多輪比對後穩定落在 0.87～0.91——代表這一步的重建仍有落差，還需要更多驗證資訊才能逼近 100%。</div>
         </div>
         <div class="mckcard hl">
-          <div class="mckstep">目前部署方案</div>
+          <div class="mckstep">備援重建驗證（非目前計算路徑）</div>
           <div class="mckq">跳過中間步驟，直接用 8 特徵學最終分數</div>
           <div class="mcknum g">R² = 0.9996</div>
-          <div class="mckdesc">多輪驗證比對下來，Ridge 迴歸直接對 8 特徵與最終分數做交叉驗證擬合，表現最穩定——這是系統實際上線使用的方法。</div>
+          <div class="mckdesc">多輪驗證比對下來，Ridge 迴歸直接對 8 特徵與最終分數做交叉驗證擬合，表現最穩定——證明這個分數「可以」被獨立重建，強化可稽核性。⚠️ 但儀表板實際顯示的數字，用的是組長模型算出來的官方 layer2_relative_score 本尊，不是這個 Ridge 重建版。</div>
         </div>
       </div>
       <div class="mckcon">
-        <b>多輪驗證後的結論</b>：PCA+熵權法 <b>≈</b> Ridge 迴歸，不是 <b>=</b>。這不是算一次就下定論，而是反覆比對多種假設、多輪交叉驗證後才確認的結果；目前部署的 Ridge 模型，是這些驗證裡表現最穩定、最接近天花板的方案。
+        <b>多輪驗證後的結論</b>：PCA+熵權法 <b>≈</b> Ridge 迴歸，不是 <b>=</b>。這不是算一次就下定論，而是反覆比對多種假設、多輪交叉驗證後才確認的結果。<b>儀表板上顯示的每一個層二分數，都是組長模型的官方輸出本尊</b>——Ridge 逼近只是用來證明這個黑盒結果可以被獨立重建，是一次穩健性驗證，不是取代組長的真實計算。
       </div>
       <div class="nextstep"><button class="nextbtn" onclick="switchTab('modelaudit')">再看外部驗證：模型考核 →</button></div>
     </div>
