@@ -595,7 +595,7 @@
       <label class="mcbrand"><input type="checkbox" data-brand="fm" onchange="toggleBrand(this)"><span class="mcdot" style="background:#00a651"></span>全家 FamilyMart<span class="mccnt" id="mcCntFm">—</span></label>
       <label class="mcbrand"><input type="checkbox" data-brand="hl" onchange="toggleBrand(this)"><span class="mcdot" style="background:#f9a8d4"></span>萊爾富 Hi-Life<span class="mccnt" id="mcCntHl">—</span></label>
       <label class="mcbrand"><input type="checkbox" data-brand="ok" onchange="toggleBrand(this)"><span class="mcdot" style="background:#f7a600"></span>OK mart<span class="mccnt" id="mcCntOk">—</span></label>
-      <label class="mcbrand"><input type="checkbox" data-brand="px" onchange="toggleBrand(this)"><span class="mcdot" style="background:#8b5cf6"></span>美廉社等<span class="mccnt" id="mcCntPx">—</span><span class="rfbb" title="這個分類的原始資料標籤是「美廉社」，但實測內容混雜：約31%是美廉社本店，38%是全聯，11%是家樂福，其餘為好市多/愛買/楓康等——這是資料本身標籤不純，不是我們分類錯誤，勾選前請留意。">標籤混雜 ⓘ</span></label>
+      <label class="mcbrand"><input type="checkbox" data-brand="px" onchange="toggleBrand(this)"><span class="mcdot" style="background:#8b5cf6"></span>美廉社等<span class="mccnt" id="mcCntPx">—</span><span class="rfbb" title="這個分類的原始資料標籤是「美廉社」，但稽核重新查核發現：只有34%真的是美廉社，66%是其他品牌，其中21.6%根本不是可比較的零售/超商業態（含全聯、家樂福等）——這是資料本身標籤不純，不是我們分類錯誤，勾選前請留意。">標籤混雜 ⓘ</span></label>
     </div>
     <div class="maplegend" id="mapLegend" style="display:none">
       <div class="maplegend-ttl">🚩 同鄉鎮插旗雷達</div>
@@ -1291,7 +1291,7 @@ function renderSaturation(s){
   const tierName={lo:'偏低',mid:'中等',hi:'偏高'};
   const brandName={fm:'全家',hl:'萊爾富',ok:'OK',px:'美廉社等'};
   const parts=['fm','hl','ok','px'].filter(b=>rec[b]>0).map(b=>`${brandName[b]} ${rec[b]}家`).join('、');
-  el.innerHTML=`門市 200 公尺內共 <b>${rec.total} 家</b>競爭品牌門市（${parts||'無明細'}），飽和度<span class="satpill ${tier}">${tierName[tier]}</span>。評估附近新址時，飽和度偏高的區域建議降低展店優先序或改採差異化品項因應。`;
+  el.innerHTML=`門市周邊共 <b>${rec.total} 家</b>競爭品牌門市（${parts||'無明細'}），飽和度<span class="satpill ${tier}">${tierName[tier]}</span>。評估附近新址時，飽和度偏高的區域建議降低展店優先序或改採差異化品項因應。<br><span style="color:rgba(239,68,68,.75);font-size:.68rem">⚠️ 原始資料標示查詢半徑「200公尺」，但稽核重算發現實際涵蓋範圍是約 ±450 公尺方框（面積達 200 公尺圓的 6.4 倍）——這是資料本身的已知誤差，「周邊」範圍比字面數字大，不是精確 200 公尺。</span>`;
 }
 
 function sel(id){
