@@ -791,6 +791,43 @@
         </div>
       </div>
 
+      <div class="chartcard">
+        <div class="charthd">
+          <div class="chartttl">課堂指定驗收指標：WMAPE／MAE／RMSE／Bias（縣市層級，對財政部稅籍銷售額錨點）</div>
+        </div>
+        <div class="boxnote">跟上面「所得驗證」問的問題不一樣：所得驗證問「排名方向對不對」，這裡問「數字本身準不準」——用財政部公開的便利商店稅籍銷售額（114年度・22縣市）當錨點，跟交付版模型的縣市營收佔比逐一比對，同時算一組「虛無模型」（每家店直接等額平分）當對照組。</div>
+      </div>
+
+      <div class="chartcard">
+        <div class="charthd">
+          <div class="chartttl">WMAPE：加權平均絕對百分比誤差（越低越準）</div>
+        </div>
+        <div class="chartwrap">
+          <svg viewBox="0 0 900 130" id="wmapeSvg"></svg>
+        </div>
+        <div class="boxnote">n=19縣市（排除台北市，避免總部登記污染口徑）。交付版的加權誤差是虛無模型的 6.4 倍——虛無模型只是「每家店平分」，完全不用任何特徵。</div>
+      </div>
+
+      <div class="chartcard">
+        <div class="charthd">
+          <div class="chartttl">MAE／RMSE：絕對誤差與均方根誤差（百分點，越低越準）</div>
+        </div>
+        <div class="chartwrap">
+          <svg viewBox="0 0 900 195" id="maeRmseSvg"></svg>
+        </div>
+        <div class="boxnote">RMSE 換算成 skill score 是 <b style="color:#ef4444">−91.4</b>——代表交付版的均方誤差是虛無模型的 92.4 倍。業界判斷「模型有沒有用」的第一關就是要贏過這個最陽春對照組，這裡沒贏。</div>
+      </div>
+
+      <div class="mckgrid">
+        <div class="mckcard">
+          <div class="mckstep">Bias（平均誤差，看偏哪一邊）</div>
+          <div class="mckq">兩邊都 ≈ 0</div>
+          <div class="mcknum r">≈0pp</div>
+          <div class="mckdesc">陷阱題：這裡的 Bias 量不出系統性偏誤，不代表模型公正——是因為錨點佔比、交付版佔比兩邊都固定加總=100%，正負誤差在結構上必然互相抵消。真正該看的是上面的 WMAPE 跟 MAE，兩者結論一致：交付版輸給虛無模型。</div>
+        </div>
+      </div>
+      <div class="boxnote">資料來源：財政部稅籍登記資料庫查詢系統（114年度・4711-12直營＋4711-13加盟連鎖式便利商店・22縣市家數與銷售額），經 <code>13_skill_score.py</code> 實測重跑驗證，非估算值。</div>
+
       <div class="mckcon">
         <b>這一步在整個系統裡的角色</b>：層一（Ridge地區基準）跟層二（PCA+熵權法相對分數）負責「算出數字」，這裡負責「數字算完之後，拿一個沒用過的外部資料檢查方向有沒有錯」。畫面上看得到的地方在門市總覽分頁右下角「✅ 合理性驗證結果」卡片，是固定顯示、不隨選店而變動的整體驗證結論。
       </div>
@@ -1038,6 +1075,60 @@ function renderAudit(){
   svg.innerHTML=g;
 }
 renderAudit();
+
+function renderWmape(){
+  const svg=$('wmapeSvg');
+  const ax0=230,ax1=860,amax=35;
+  const mapX=v=>ax0+(v/amax)*(ax1-ax0);
+  const y0=45,y1=90,barH=26;
+  let g='';
+  [0,10,20,30].forEach(v=>{
+    const x=mapX(v);
+    g+=`<line x1="${x}" y1="15" x2="${x}" y2="115" class="chartgrid"/>`;
+    g+=`<text class="chartxlbl" x="${x}" y="128" text-anchor="middle">${v}%</text>`;
+  });
+  const rows=[
+    {y:y0,v:4.9,color:'#10b981',label:'虛無模型（每店等額）'},
+    {y:y1,v:31.5,color:'#ef4444',label:'交付版模型'},
+  ];
+  rows.forEach(r=>{
+    const x=mapX(r.v);
+    g+=`<text x="${ax0-14}" y="${r.y+5}" text-anchor="end" font-size="12" font-weight="700" fill="rgba(255,255,255,.85)">${r.label}</text>`;
+    g+=`<rect x="${ax0}" y="${r.y-barH/2}" width="${Math.max(x-ax0,2)}" height="${barH}" fill="${r.color}" fill-opacity=".55" stroke="${r.color}" stroke-width="1.5" rx="3"/>`;
+    g+=`<text x="${x+8}" y="${r.y+5}" text-anchor="start" font-size="13" font-weight="900" fill="${r.color}">${r.v}%</text>`;
+  });
+  g+=`<text class="chartxlbl" x="${(ax0+ax1)/2}" y="14" text-anchor="middle" fill="rgba(255,255,255,.5)">WMAPE（加權平均絕對百分比誤差，越低越準）</text>`;
+  svg.innerHTML=g;
+}
+renderWmape();
+
+function renderMaeRmse(){
+  const svg=$('maeRmseSvg');
+  const ax0=230,ax1=860,amax=4;
+  const mapX=v=>ax0+(v/amax)*(ax1-ax0);
+  const barH=24;
+  const rows=[
+    {y:36,v:0.257,color:'#10b981',label:'MAE・虛無模型'},
+    {y:70,v:1.656,color:'#ef4444',label:'MAE・交付版'},
+    {y:122,v:0.356,color:'#10b981',label:'RMSE・虛無模型'},
+    {y:156,v:3.425,color:'#ef4444',label:'RMSE・交付版'},
+  ];
+  let g='';
+  [0,1,2,3,4].forEach(v=>{
+    const x=mapX(v);
+    g+=`<line x1="${x}" y1="15" x2="${x}" y2="178" class="chartgrid"/>`;
+    g+=`<text class="chartxlbl" x="${x}" y="192" text-anchor="middle">${v}pp</text>`;
+  });
+  rows.forEach(r=>{
+    const x=mapX(r.v);
+    g+=`<text x="${ax0-14}" y="${r.y+5}" text-anchor="end" font-size="12" font-weight="700" fill="rgba(255,255,255,.85)">${r.label}</text>`;
+    g+=`<rect x="${ax0}" y="${r.y-barH/2}" width="${Math.max(x-ax0,2)}" height="${barH}" fill="${r.color}" fill-opacity=".55" stroke="${r.color}" stroke-width="1.5" rx="3"/>`;
+    g+=`<text x="${x+8}" y="${r.y+5}" text-anchor="start" font-size="12" font-weight="900" fill="${r.color}">${r.v}pp</text>`;
+  });
+  g+=`<line x1="${ax0}" y1="98" x2="${ax1}" y2="98" stroke="rgba(255,255,255,.15)" stroke-dasharray="3,3"/>`;
+  svg.innerHTML=g;
+}
+renderMaeRmse();
 
 const CX0=60,CX1=880,CY0=20,CY1=230;
 const chartMapX=i=>CX0+i/(LAYER2_ACTUAL.length-1)*(CX1-CX0);
