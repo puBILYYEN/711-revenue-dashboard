@@ -672,13 +672,36 @@
 
       <div class="chartcard">
         <div class="charthd">
-          <div class="chartttl">下一步：萬事具備，只欠真值</div>
+          <div class="chartttl">下一步：讓它從診斷報告變成可用產品</div>
         </div>
-        <div class="nextgap">
-          <div class="nextgapicon">🧩</div>
-          <div class="nextgaplbl">實際 POS 營收<br><span>（Ground Truth）</span></div>
+        <div class="boxnote">四件事，依「解鎖多少能力」排序——第一件解開，後面三件才有意義，不是四件平行的待辦。</div>
+      </div>
+
+      <div class="mckgrid">
+        <div class="mckcard hl">
+          <div class="mckstep">01・最優先</div>
+          <div class="mckq">取得任一組單店真值</div>
+          <div class="mckdesc">本專案所有限制的共同根源。即使只拿到數十家門市的實際 POS 營收，就能首次計算 MAPE、校準參數，讓「預測」這個詞第一次真正可用——目前所有驗證都只能做「排名對不對」，做不了「金額準不準」。</div>
         </div>
-        <div class="boxnote">要把這套架構變成真正的預測工具，缺的不是方法，是 <b style="color:#fff">POS 真值</b>——一旦拿到，這套高度可稽核的管線（144 項數字全自動溯源比對）立刻就能拿來校準。這是目前唯一還缺的那一塊拼圖，其他都已經備齊。</div>
+        <div class="mckcard">
+          <div class="mckstep">02</div>
+          <div class="mckq">補齊店級屬性</div>
+          <div class="mckdesc">賣場面積、營業時間、店型、是否設座位區／ibon——業界類迴歸中賣場面積通常是最強的單一變數，現有七張表<b style="color:#ef4444">完全沒有</b>。7-ELEVEN 官網的逐店服務標籤是公開可取得的。</div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">03</div>
+          <div class="mckq">引入空間均衡機制</div>
+          <div class="mckdesc">把被解釋量從「每店營收」改為「每店分到的商圈量」，讓商圈規模同時作用於「開幾家店」與「單店營收」兩條路徑——這正是縣市層級離散度異常的架構層級根因，不是參數能調出來的。</div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">04</div>
+          <div class="mckq">建立新址評分能力</div>
+          <div class="mckdesc">對任意座標重新蒐集周邊 POI 與人口，才能回答「這個點能不能開」——現行八項特徵都是以既有門市為圓心算的，換句話說，這套系統目前只能評估「已經存在」的門市，評估不了「還沒開」的候選點。</div>
+        </div>
+      </div>
+
+      <div class="mckcon">
+        <b>如果只能做一件事</b>：第 01 項。缺的不是方法——這套流程已經能重現、能稽核、能自我否證；缺的是幾百家店的實際營收。一旦拿到，這套高度可稽核的管線（144 項數字全自動溯源比對）立刻就能拿來校準，不用重新建置。
       </div>
 
       <div class="nextstep"><button class="nextbtn" onclick="switchTab('overview')">校準完期待，看門市總覽 →</button></div>
