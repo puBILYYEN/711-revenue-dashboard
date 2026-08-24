@@ -565,7 +565,7 @@
           <div class="sprho">+0.295</div>
           <div class="spinfo"><b>Spearman 相關係數</b>（進階版）<br>n = 7,225 筆 · p &lt; 0.001<br>方法：殘差法（控制人口）<br>較初版 +0.219 提升 34.6%・新舊排序相關 0.969</div>
         </div>
-        <div class="vnote">💡 <b>資訊防火牆</b>：所得中位數全程未進入模型訓練，僅於最終驗證階段對照方向合理性——確保驗證獨立性，避免循環論證。</div>
+        <div class="vnote">💡 <b>資料洩漏防範（Data Leakage Prevention）</b>：所得中位數全程未進入模型訓練，僅於最終驗證階段對照方向合理性——避免自己出題自己改答案的循環論證。</div>
         <div class="vwarn">⚠️ Naive 人均法 Spearman = <span style="color:var(--re)">−0.235</span>（失真）：人口越多店越密，稀釋人均，非模型問題，已棄用。</div>
       </div>
       <div class="cd rkp">
@@ -633,9 +633,9 @@
         </div>
         <div class="mckcard hl">
           <div class="mckstep">痛點③・選址產品常是黑盒、資料陳舊</div>
-          <div class="mckq">可追溯稽核的特徵清洗與資訊防火牆流程</div>
+          <div class="mckq">可追溯稽核的特徵清洗與資料洩漏防範流程</div>
           <div class="mcknum g">200m→±450m 規格落差</div>
-          <div class="mckdesc">清洗驗證全台 7,313 家店的 POI／人口／競爭店特徵，揪出取樣半徑規格落差（實際取樣面積是規格的6.4倍），並建立「所得全程不進訓練」的防火牆——實測若違反這條規則，驗證相關係數會從0.238虛胖到0.426。</div>
+          <div class="mckdesc">清洗驗證全台 7,313 家店的 POI／人口／競爭店特徵，揪出取樣半徑規格落差（實際取樣面積是規格的6.4倍），並建立「所得全程不進訓練」的資料洩漏防範機制——實測若違反這條規則，驗證相關係數會從0.238虛胖到0.426。</div>
         </div>
       </div>
       <div class="mckcon">
@@ -823,10 +823,12 @@
           <div class="mckdesc">直接拿「營收÷人口」的人均值去比對，結果算出負相關，看起來像「所得越高營收越低」——完全反直覺。後來查出來是人口越多的地方店越密集，人均值被稀釋掉了，不是模型真的有問題，是算法本身失真。</div>
         </div>
         <div class="mckcard">
-          <div class="mckstep">資訊防火牆</div>
+          <div class="mckstep">資料洩漏防範（Data Leakage Prevention）</div>
           <div class="mckq">所得資料為什麼不能拿去訓練？</div>
           <div class="mcknum">0 次使用</div>
-          <div class="mckdesc">層一、層二的訓練特徵只有人口／POI／店數，所得中位數全程沒有出現在訓練資料裡——只在算完之後才調出來對答案。如果訓練時就用了所得，驗證結果一定會很漂亮，但那是「自己出題自己改答案」，沒有意義。</div>
+          <div class="mckdesc">層一、層二的訓練特徵只有人口／POI／店數，所得中位數全程沒有出現在訓練資料裡——只在算完之後才調出來對答案。如果訓練時就用了所得，驗證結果一定會很漂亮，但那是「自己出題自己改答案」，沒有意義。
+            <div style="margin-top:.4rem;color:rgba(255,255,255,.45);font-size:.78rem">這在機器學習裡的正式名稱是「data leakage prevention（資料洩漏防範）」，指驗證用的資訊完全不能滲進訓練過程，否則驗證分數會被灌水——不是資安圈的「防火牆」，只是借用同一種「兩邊之間畫一條不准越界的線」的邏輯。</div>
+          </div>
         </div>
         <div class="mckcard">
           <div class="mckstep">進階版更新</div>
