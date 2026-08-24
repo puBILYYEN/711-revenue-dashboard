@@ -613,22 +613,33 @@
       <div class="mckttl">🎯 誠實邊界：贏不贏過虛無模型，才是第一關</div>
       <div class="mcksub">這份系統最強的地方不是「模型準不準」，是「知道自己的模型在哪裡失效，而且是自己找出來的」——敘事主軸不是「做了一個很準的模型」，是「在一個沒有標準答案的分配題上，做出一套說得出理由、也經得起否證的方法」。</div>
 
-      <div class="trustttl">💼 這套系統現在能幫你做兩件事</div>
-      <div class="trustgrid">
-        <div class="trustcol yes">
-          <div class="trusthd">✅ 現在就能用</div>
-          <div class="trustitem"><b>① 同鄉鎮插旗雷達</b>——把同一鄉鎮內的門市分成三層（較佳／中等／較弱地點潛力），用來公平比較地點條件、評估候選新址、分派業績目標。外部所得資料驗證過方向正確：分辨準確率 <span class="tinum">52.2%</span>，顯著高於隨機猜測的 48.1%（4.2 個標準差，n＝5萬多組門市配對）。
-            <div style="margin-top:.4rem;color:rgba(239,68,68,.75);font-size:.82rem">⚠️ 誠實揭露：這個分層不是最強的做法——同一次外部驗證顯示，單用「機構POI數量」一個變數分辨力達 66.9%，比我們的複合分層還高；分層結果對取樣半徑也不穩定，半徑改成 150m 時有 36.1% 的門市會換層。這是目前唯一能用的功能，但「能用」不等於「已經是最佳解」。</div>
-          </div>
-          <div class="trustitem"><b>② 校準預備艦</b>——全台 7,313 家門市的乾淨特徵表（人口、POI、競爭店密度）已經整理好，而且不是舊資料：另外拿第三方獨立資料源（2026/06/27 更新）逐點比對經緯度，門市清單吻合率 <span class="tinum">98.6%</span>，判定現況良好、不需要更新。一旦拿到幾百家店的真實 POS 月營收，這套系統可以直接拿來校準成正式預測工具，不用重新建置。
-            <div style="margin-top:.4rem;color:rgba(239,68,68,.75);font-size:.82rem">⚠️ 誠實揭露：98.6% 這個數字本身無法重新跑一次驗證——比對用的中介檔案已遺失，目前只能引用當時的結論，不是「隨時可重現」的驗證。</div>
+      <div class="trustttl">💼 三個能對企業講的價值主張</div>
+      <div class="mckgrid">
+        <div class="mckcard hl">
+          <div class="mckstep">痛點①・零單店真值下的資源分配</div>
+          <div class="mckq">客觀算出業績目標配額，不靠人工拍腦袋訂權重</div>
+          <div class="mcknum g">189.84億・加總零誤差</div>
+          <div class="mckdesc">用 Ridge 迴歸學地區基準、PCA+熵權法學店內相對強弱，自動算出一套分配天平，取代「人口0.3、租金0.2」這種人工權重。
+            <div style="margin-top:.4rem;color:rgba(239,68,68,.75)">⚠️ 誠實邊界：「加總零誤差」是比例分配公式的數學必然，不是預測準確度——任何分數代入都會有這個效果。單店金額目前不能拿去做財務決策，縣市層級 skill score −91.4，輸給「每店直接平分」的對照組。</div>
           </div>
         </div>
-        <div class="trustcol no">
-          <div class="trusthd">⚠️ 現在還不能用</div>
-          <div class="trustitem"><b>① 精確金額</b>——「預估營收」的數字不能拿去做財務決策：拆到縣市層級比對，模型誤差反而輸給「全部門市直接平分」的最陽春對照組。</div>
-          <div class="trustitem"><b>② 跨鄉鎮／跨縣市排名</b>——只在「同一鄉鎮內」驗證過方向正確，拿去比不同鄉鎮、不同縣市誰賺得多，目前沒有數據支撐。</div>
+        <div class="mckcard hl">
+          <div class="mckstep">痛點②・無法跨鄉鎮比較</div>
+          <div class="mckq">同鄉鎮插旗與租約談判指南（地點條件三分層）</div>
+          <div class="mcknum g">52.2% vs 隨機 48.1%</div>
+          <div class="mckdesc">同一鄉鎮內門市分成較佳／中等／較弱三層，外部所得資料驗證方向正確（4.2個標準差，n=5萬多組配對），用於避開地雷店、評估續約地段價值。
+            <div style="margin-top:.4rem;color:rgba(239,68,68,.75)">⚠️ 誠實邊界：這個複合分層輸給單一變數「機構POI數量」（66.9%），且對取樣半徑敏感——依官方200m規格重篩，32.5%門市會換層、141家最高最低對調。是方向參考，不是精確定論。</div>
+          </div>
         </div>
+        <div class="mckcard hl">
+          <div class="mckstep">痛點③・選址產品常是黑盒、資料陳舊</div>
+          <div class="mckq">可追溯稽核的特徵清洗與資訊防火牆流程</div>
+          <div class="mcknum g">200m→±450m 規格落差</div>
+          <div class="mckdesc">清洗驗證全台 7,313 家店的 POI／人口／競爭店特徵，揪出取樣半徑規格落差（實際取樣面積是規格的6.4倍），並建立「所得全程不進訓練」的防火牆——實測若違反這條規則，驗證相關係數會從0.238虛胖到0.426。</div>
+        </div>
+      </div>
+      <div class="mckcon">
+        <b>還不能用的部分，講清楚</b>：精確金額不能拿去做財務決策（縣市層級輸給虛無模型）；跨鄉鎮／跨縣市排名沒有數據支撐，只在「同一鄉鎮內」驗證過方向正確。
       </div>
 
       <div class="mckcon">
