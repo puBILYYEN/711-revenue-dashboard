@@ -400,8 +400,7 @@
   <div class="tabbar">
     <button class="tbtn on" data-view="honesty" onclick="switchTab('honesty')"><span class="tbtnum">①</span>🎯 先看這裡：誠實邊界</button>
     <button class="tbtn" data-view="overview" onclick="switchTab('overview')"><span class="tbtnum">②</span>📋 門市總覽</button>
-    <button class="tbtn" data-view="modelcheck" onclick="switchTab('modelcheck')"><span class="tbtnum">③</span>🔬 模型驗證（深入）</button>
-    <button class="tbtn" data-view="modelaudit" onclick="switchTab('modelaudit')"><span class="tbtnum">④</span>📊 模型考核（深入）</button>
+    <button class="tbtn" data-view="modelaudit" onclick="switchTab('modelaudit')"><span class="tbtnum">③</span>📊 模型考核（深入）</button>
   </div>
 
   <div id="viewOverview" style="display:none">
@@ -605,7 +604,7 @@
       <div class="maplegend-note">放大地圖到單一鄉鎮，就能看到每家店的插旗顏色；藍色數字圈是還沒展開的門市群聚。</div>
     </div>
   </div>
-  <div class="nextstep"><button class="nextbtn" onclick="switchTab('modelcheck')">想深入方法論？看模型驗證 →</button></div>
+  <div class="nextstep"><button class="nextbtn" onclick="switchTab('modelaudit')">想深入方法論？看模型考核 →</button></div>
   </div>
 
   <div id="viewHonesty" class="tabview" style="display:block">
@@ -748,80 +747,6 @@
     </div>
   </div>
 
-  <div id="viewModelcheck" class="tabview" style="display:none">
-    <div class="cd mck">
-      <div class="mckttl">🔒 這個分數信得過嗎？——不是黑盒，兩條路獨立對得上</div>
-      <div class="mcksub">總經理真正在意的不是「PCA 還是熵權法哪個比較先進」，是「這個分數是不是黑盒子、我的團隊是不是真的懂裡面在算什麼、萬一原作者哪天不在了這套系統還能不能被稽核」。我們的做法：<b>先在完全沒看過原始程式碼的情況下，只靠 7,313 筆真實資料反推出這個分數的計算邏輯</b>，得到 R²=0.99993 的高信心結果；後來拿到 <code>common.py</code> 原始碼，直接對答案——<b style="color:#10b981">兩條獨立路徑得到的結論一致</b>。這證明的不是「我們很會猜」，是「這套系統的每一個環節都經得起外部覆核，不是誰說了算」。</div>
-      <div class="mcksub" style="margin-top:.6rem;color:rgba(239,68,68,.85)">⚠️ 誠實揭露：實際組合公式其實非常單純——PCA 分數與熵權分數直接<b>簡單平均</b>後再做範圍校正，不是複雜黑盒（見下方「對答案」卡片）。但透明不等於最優：這個複合分數的分辨力（52.2%）不如單一變數「機構POI數量」（66.9%）——不過那個變數是整數計數，72.6%的門市會同分排不出名次（複合分數只有1.7%同分），硬性約束的金額分配需要連續分數才撐得住，這才是仍用複合分數的真正理由（詳見「誠實邊界」與「模型考核」分頁）。這頁只回答「信不信得過」，不是「準不準」。</div>
-
-      <div class="chartcard">
-        <div class="charthd">
-          <div class="chartttl">120 家門市代表點・依實際層二分數由小到大排序（取自 7,313 筆真實資料）</div>
-          <button class="chartbtn" id="chartToggle" onclick="toggleRidgeLine()">+ 疊加 Ridge 迴歸估計值</button>
-        </div>
-        <div class="chartlegend" id="chartLegend" style="display:none">
-          <span class="lgitem"><span class="lgdot" style="background:#10b981"></span>PCA+熵權法（實際值）</span>
-          <span class="lgitem"><span class="lgdot" style="background:#3b82f6"></span>Ridge 迴歸（獨立估計值）</span>
-          <span class="lgstat">交叉驗證 R²=0.9996・平均絕對誤差 0.0016</span>
-        </div>
-        <div class="chartwrap" id="chartWrap">
-          <svg viewBox="0 0 900 260" id="chartSvg"></svg>
-          <div class="charttip" id="chartTip" style="display:none"></div>
-        </div>
-      </div>
-
-      <div class="chartcard">
-        <div class="charthd">
-          <div class="chartttl">兩種方法的分數分布比較（PCA+熵權法 vs Ridge迴歸，全體 7,313 家門市，不是抽樣）</div>
-        </div>
-        <div class="chartwrap">
-          <svg viewBox="0 0 900 170" id="boxSvg"></svg>
-        </div>
-        <div class="boxnote" id="boxNote"></div>
-      </div>
-
-      <div class="chartcard">
-        <div class="charthd">
-          <div class="chartttl">層二分數落差分布（實際 − Ridge估計，全體 7,313 家門市，鐘形曲線）</div>
-        </div>
-        <div class="chartwrap">
-          <svg viewBox="0 0 900 220" id="bellSvg"></svg>
-        </div>
-        <div class="boxnote" id="bellNote"></div>
-      </div>
-
-      <div class="mckgrid">
-        <div class="mckcard">
-          <div class="mckstep">STEP 1・盲測</div>
-          <div class="mckq">已知 PCA 分數／熵權分數，能不能推出最終層二分數？</div>
-          <div class="mcknum g">R² = 0.99993</div>
-          <div class="mckdesc">比對過固定混合比例、一般線性、幾何平均、簡單平均、含交互作用項等多種組合假設，反覆驗證後鎖定：<br><code>層二 ≈ 0.550×PCA + 0.550×熵權 − 0.052</code><br>這是在沒看過原始程式碼的情況下，從 7,313 筆真實數字裡反推出的規律。</div>
-        </div>
-        <div class="mckcard hl">
-          <div class="mckstep">對答案・拿到原始碼後</div>
-          <div class="mckq">實際公式是什麼？</div>
-          <div class="mcknum g">兩者一致</div>
-          <div class="mckdesc"><code>common.py</code> 裡的寫法是：<br><code>combine_layer2_scores = 穩健校正( (PCA分數 + 熵權分數) / 2 )</code><br>就是兩個分數<b>直接簡單平均</b>後做範圍校正——沒有隱藏參數、沒有人工調的比例。我們盲測猜出的「0.550×PCA + 0.550×熵權」，0.550 幾乎就是簡單平均的 0.5，−0.052 則是那次「穩健校正」造成的微幅位移。<b style="color:#10b981">盲猜對得起真相。</b></div>
-        </div>
-        <div class="mckcard">
-          <div class="mckstep">STEP 2</div>
-          <div class="mckq">從 8 個原始特徵，能不能精準重建 PCA／熵權分數？</div>
-          <div class="mcknum r">相關係數 0.87～0.91</div>
-          <div class="mckdesc">用「極端值處理→正規化→加權求和」流程反覆試了多組參數，多輪比對後穩定落在 0.87～0.91——代表這一步的重建仍有落差，還需要更多驗證資訊才能逼近 100%。</div>
-        </div>
-        <div class="mckcard">
-          <div class="mckstep">獨立交叉驗證</div>
-          <div class="mckq">換一套完全不同的方法（Ridge迴歸），結果還會一樣嗎？</div>
-          <div class="mcknum g">R² = 0.9996</div>
-          <div class="mckdesc">跳過 PCA/熵權法的中間步驟，直接用 8 個原始特徵對最終分數做 Ridge 迴歸擬合——換一套完全不同的統計方法，結果依然高度吻合，強化「這套系統不是單一方法偶然湊對」的可信度。⚠️ 儀表板實際顯示的數字，用的是模型算出來的 layer2_relative_score 本尊，這只是額外的交叉驗證，不是取代真實計算路徑。</div>
-        </div>
-      </div>
-      <div class="mckcon">
-        <b>這頁想證明的事</b>：這套系統的核心分數<b>不是黑盒子</b>——盲測反推對得上實際公式，換一套完全不同的統計方法（Ridge）也對得上，儀表板上每一個層二分數用的都是實際輸出本尊。三條獨立路徑互相印證，這是給任何想覆核這套系統的人（不只是總經理）的信任基礎：不用相信我們說的話，自己也能重新驗一遍。
-      </div>
-      <div class="nextstep"><button class="nextbtn" onclick="switchTab('modelaudit')">再看外部驗證：模型考核 →</button></div>
-    </div>
-  </div>
 
   <div id="viewModelaudit" class="tabview" style="display:none">
     <div class="cd mck">
@@ -936,19 +861,6 @@
 const L1=[{n:'自家門市',v:.234},{n:'競爭門市',v:.145},{n:'餐飲POI',v:-.124},{n:'機構POI',v:.090},{n:'生活POI',v:-.039},{n:'戶數',v:.016},{n:'交通POI',v:-.009},{n:'人口',v:-.005}];
 const L2=[{n:'人口',p:.376,e:.037},{n:'戶數',p:.377,e:.049},{n:'餐飲POI',p:.228,e:.065},{n:'生活POI',p:.223,e:.300},{n:'機構POI',p:.300,e:.068},{n:'交通POI',p:.230,e:.229},{n:'競爭門市',p:.299,e:.131},{n:'自家門市',p:.262,e:.120}];
 const TREV={60:183.71,62:189.84,65:199.02};
-// 120個代表點，取自7,313筆真實輸出，依實際層二分數(PCA+熵權法)由小到大排序後等距抽樣。
-// ridge為5折交叉驗證預測值(非in-sample樂觀值)，R2=0.9996，跟模型驗證分頁報的數字同一份計算。
-const LAYER2_ACTUAL=[0.03,0.0514,0.0886,0.1122,0.1295,0.1464,0.1608,0.174,0.1904,0.2013,0.2158,0.2258,0.2368,0.2474,0.2586,0.2707,0.2815,0.2942,0.3068,0.3192,0.3286,0.339,0.3505,0.3609,0.3693,0.3778,0.3864,0.3946,0.4055,0.4141,0.4233,0.4346,0.4445,0.4539,0.4631,0.4712,0.4802,0.4867,0.4951,0.5021,0.51,0.5169,0.525,0.532,0.5388,0.5452,0.5507,0.5571,0.5626,0.5676,0.5733,0.579,0.5854,0.5912,0.5965,0.6022,0.6083,0.6139,0.6198,0.6251,0.6299,0.6341,0.6398,0.6444,0.65,0.6539,0.657,0.6619,0.6674,0.6715,0.6761,0.6798,0.6846,0.6884,0.6929,0.6971,0.701,0.7057,0.7101,0.7143,0.7199,0.7248,0.7291,0.7325,0.7365,0.7408,0.7455,0.75,0.7545,0.7588,0.7633,0.7682,0.7725,0.7769,0.7826,0.7872,0.7921,0.7972,0.8034,0.8089,0.8137,0.8193,0.824,0.8289,0.8339,0.8387,0.8434,0.849,0.8544,0.8604,0.8655,0.8717,0.8784,0.8855,0.8956,0.9054,0.9169,0.9308,0.9545,0.97];
-const LAYER2_RIDGE=[0.0229,0.0547,0.0916,0.1143,0.1318,0.149,0.1642,0.1767,0.1929,0.204,0.2166,0.2278,0.2394,0.2485,0.2598,0.2724,0.2836,0.2954,0.309,0.3217,0.3285,0.3397,0.3523,0.3637,0.3689,0.377,0.3873,0.397,0.4057,0.415,0.4247,0.4358,0.4445,0.4539,0.4621,0.4713,0.4809,0.4876,0.495,0.5017,0.5101,0.5155,0.5252,0.5303,0.5392,0.5461,0.5511,0.556,0.5633,0.5677,0.5735,0.5804,0.5846,0.5908,0.5966,0.6014,0.607,0.6145,0.6202,0.6234,0.6287,0.6331,0.6386,0.6448,0.6484,0.6531,0.6572,0.6616,0.6661,0.6706,0.6762,0.6787,0.6843,0.6877,0.693,0.6964,0.7017,0.7053,0.7089,0.7135,0.7191,0.7233,0.7297,0.7323,0.736,0.7392,0.7444,0.7485,0.7534,0.7588,0.7619,0.767,0.7724,0.7764,0.7827,0.7871,0.7909,0.7977,0.8022,0.8061,0.8136,0.8181,0.8231,0.827,0.8323,0.839,0.8426,0.8484,0.8534,0.8583,0.8653,0.8636,0.8773,0.8843,0.895,0.9031,0.9151,0.9284,0.9671,0.9833];
-let CHART_SHOW_RIDGE=false;
-// 兩種方法各自的分數分布統計，來自全體7,313家店，非抽樣（實際值=eps_rescale夾限過的layer2_relative_score；
-// Ridge=5折交叉驗證的原始預測值，未經夾限，所以會超出[0.03,0.97]的合理範圍——這是兩方法結構上的真實差異）。
-const BOX_ACTUAL={q1:0.4201,med:0.6274,q3:0.7597,whiskLo:0.03,whiskHi:0.97,dmin:0.03,dmax:0.97};
-const BOX_RIDGE={q1:0.4205,med:0.6269,q3:0.7588,whiskLo:-0.0667,whiskHi:1.032,dmin:-0.0667,dmax:1.032};
-// 落差(實際-Ridge)直方圖，全體7,313家店，固定顯示範圍±0.03(涵蓋7,271家/99.4%)，40個bin。
-const BELL_COUNTS=[0,1,1,1,3,3,5,4,2,3,9,4,7,5,9,24,49,217,717,2129,3095,885,43,4,5,6,4,5,2,6,3,3,3,3,2,2,1,2,2,2];
-const BELL_CENTERS=[-0.02925,-0.02775,-0.02625,-0.02475,-0.02325,-0.02175,-0.02025,-0.01875,-0.01725,-0.01575,-0.01425,-0.01275,-0.01125,-0.00975,-0.00825,-0.00675,-0.00525,-0.00375,-0.00225,-0.00075,0.00075,0.00225,0.00375,0.00525,0.00675,0.00825,0.00975,0.01125,0.01275,0.01425,0.01575,0.01725,0.01875,0.02025,0.02175,0.02325,0.02475,0.02625,0.02775,0.02925];
-const BELL_STAT={mean:0.0000073,std:0.004544,nInRange:7271,nTotal:7313};
 let ALL=[],FIL=[],SEL=null,SC=62,SO='rev',RK='top',MAX_REV=1;
 let COMP=[],ACTIVE_BRANDS=new Set();
 let COMP_SUMMARY={};
@@ -1086,7 +998,6 @@ function scrollToPain(cardSelector){
 function switchTab(view){
   $('viewOverview').style.display=view==='overview'?'contents':'none';
   $('viewHonesty').style.display=view==='honesty'?'block':'none';
-  $('viewModelcheck').style.display=view==='modelcheck'?'block':'none';
   $('viewModelaudit').style.display=view==='modelaudit'?'block':'none';
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.view===view));
   if(view==='overview'){
@@ -1205,144 +1116,6 @@ function renderMaeRmse(){
   svg.innerHTML=g;
 }
 renderMaeRmse();
-
-const CX0=60,CX1=880,CY0=20,CY1=230;
-const chartMapX=i=>CX0+i/(LAYER2_ACTUAL.length-1)*(CX1-CX0);
-const chartMapY=v=>CY1-v*(CY1-CY0);
-
-function renderChart(){
-  const svg=$('chartSvg');
-  let g='';
-  [0,.2,.4,.6,.8,1].forEach(v=>{
-    const y=chartMapY(v);
-    g+=`<line class="chartgrid" x1="${CX0}" y1="${y}" x2="${CX1}" y2="${y}"/>`;
-    g+=`<text class="chartaxis" x="${CX0-8}" y="${y+3}" text-anchor="end">${v.toFixed(1)}</text>`;
-  });
-  g+=`<text class="chartxlbl" x="${(CX0+CX1)/2}" y="252" text-anchor="middle">門市代表點（依實際層二分數排序，越右分數越高）</text>`;
-  const actualPts=LAYER2_ACTUAL.map((v,i)=>`${chartMapX(i)},${chartMapY(v)}`).join(' ');
-  g+=`<polyline points="${actualPts}" fill="none" stroke="#10b981" stroke-width="2"/>`;
-  if(CHART_SHOW_RIDGE){
-    const ridgePts=LAYER2_RIDGE.map((v,i)=>`${chartMapX(i)},${chartMapY(v)}`).join(' ');
-    g+=`<polyline points="${ridgePts}" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,4"/>`;
-  }
-  g+=`<line id="cxLine" x1="0" y1="${CY0}" x2="0" y2="${CY1}" stroke="rgba(255,255,255,.25)" stroke-width="1" style="display:none"/>`;
-  g+=`<circle id="cxDotA" r="4" fill="#10b981" stroke="#0b1220" stroke-width="1.5" style="display:none"/>`;
-  g+=`<circle id="cxDotR" r="4" fill="#3b82f6" stroke="#0b1220" stroke-width="1.5" style="display:none"/>`;
-  svg.innerHTML=g;
-
-  svg.onmousemove=(e)=>{
-    const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
-    const loc=pt.matrixTransform(svg.getScreenCTM().inverse());
-    let i=Math.round((loc.x-CX0)/(CX1-CX0)*(LAYER2_ACTUAL.length-1));
-    i=Math.max(0,Math.min(LAYER2_ACTUAL.length-1,i));
-    const x=chartMapX(i);
-    $('cxLine').setAttribute('x1',x);$('cxLine').setAttribute('x2',x);$('cxLine').style.display='block';
-    const dotA=$('cxDotA');dotA.setAttribute('cx',x);dotA.setAttribute('cy',chartMapY(LAYER2_ACTUAL[i]));dotA.style.display='block';
-    let tipHtml=`<div class="tprow"><span class="tpdot" style="background:#10b981"></span>PCA+熵權法：${LAYER2_ACTUAL[i].toFixed(3)}</div>`;
-    if(CHART_SHOW_RIDGE){
-      const dotR=$('cxDotR');dotR.setAttribute('cx',x);dotR.setAttribute('cy',chartMapY(LAYER2_RIDGE[i]));dotR.style.display='block';
-      const gap=Math.abs(LAYER2_ACTUAL[i]-LAYER2_RIDGE[i]);
-      tipHtml+=`<div class="tprow"><span class="tpdot" style="background:#3b82f6"></span>Ridge估計：${LAYER2_RIDGE[i].toFixed(3)}</div><div style="color:rgba(255,255,255,.45);margin-top:2px">落差 ${gap.toFixed(4)}</div>`;
-    }
-    const tip=$('chartTip');
-    tip.innerHTML=tipHtml;
-    tip.style.display='block';
-    const wrapRect=$('chartWrap').getBoundingClientRect();
-    const svgRect=svg.getBoundingClientRect();
-    const px=svgRect.left-wrapRect.left+(x/900)*svgRect.width;
-    tip.style.left=px+'px';
-    tip.style.top=(chartMapY(LAYER2_ACTUAL[i])/260*svgRect.height)+'px';
-  };
-  svg.onmouseleave=()=>{
-    $('cxLine').style.display='none';$('cxDotA').style.display='none';$('cxDotR').style.display='none';
-    $('chartTip').style.display='none';
-  };
-}
-
-const BX0=230,BX1=860,BXMIN=-0.15,BXMAX=1.15;
-const boxMapX=v=>BX0+(v-BXMIN)/(BXMAX-BXMIN)*(BX1-BX0);
-
-function drawBoxRow(g,stat,y,color,label){
-  const xLo=boxMapX(stat.whiskLo),xHi=boxMapX(stat.whiskHi);
-  const xQ1=boxMapX(stat.q1),xQ3=boxMapX(stat.q3),xMed=boxMapX(stat.med);
-  g+=`<text x="${BX0-14}" y="${y+4}" text-anchor="end" font-size="13" font-weight="700" fill="rgba(255,255,255,.85)">${label}</text>`;
-  g+=`<line x1="${xLo}" y1="${y}" x2="${xHi}" y2="${y}" stroke="${color}" stroke-width="1.5"/>`;
-  g+=`<line x1="${xLo}" y1="${y-9}" x2="${xLo}" y2="${y+9}" stroke="${color}" stroke-width="1.5"/>`;
-  g+=`<line x1="${xHi}" y1="${y-9}" x2="${xHi}" y2="${y+9}" stroke="${color}" stroke-width="1.5"/>`;
-  g+=`<rect x="${xQ1}" y="${y-18}" width="${Math.max(xQ3-xQ1,2)}" height="36" fill="${color}" fill-opacity=".28" stroke="${color}" stroke-width="1.5" rx="2"/>`;
-  g+=`<line x1="${xMed}" y1="${y-18}" x2="${xMed}" y2="${y+18}" stroke="#fff" stroke-width="2"/>`;
-  return g;
-}
-
-function renderBox(){
-  const svg=$('boxSvg');
-  let g='';
-  [0,.2,.4,.6,.8,1].forEach(v=>{
-    const x=boxMapX(v);
-    g+=`<line x1="${x}" y1="20" x2="${x}" y2="150" class="chartgrid"/>`;
-    g+=`<text class="chartaxis" x="${x}" y="164" text-anchor="middle">${v.toFixed(1)}</text>`;
-  });
-  const x0=boxMapX(0),x1=boxMapX(1);
-  g+=`<line x1="${x0}" y1="12" x2="${x0}" y2="150" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-dasharray="3,3"/>`;
-  g+=`<line x1="${x1}" y1="12" x2="${x1}" y2="150" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-dasharray="3,3"/>`;
-  g+=`<text class="chartaxis" x="${(x0+x1)/2}" y="10" text-anchor="middle" fill="rgba(255,255,255,.5)">合理分數範圍 0～1</text>`;
-
-  g=drawBoxRow(g,BOX_ACTUAL,52,'#10b981','PCA+熵權法（實際值）');
-  g=drawBoxRow(g,BOX_RIDGE,110,'#3b82f6','Ridge迴歸（獨立估計值）');
-  svg.innerHTML=g;
-
-  $('boxNote').innerHTML=`<b>中位數／IQR幾乎相同</b>：PCA+熵權法實際值中位數 ${BOX_ACTUAL.med}、Ridge ${BOX_RIDGE.med}（差距僅 0.0005），中間50%門市的分布範圍也幾乎重疊　`+
-    `｜<b>但全距不一樣</b>：PCA+熵權法因為公式本身有夾限，數值必然落在 [0.03, 0.97] 之間；Ridge 是原始線性預測，沒有這層保護，實測範圍到 [${BOX_RIDGE.dmin}, ${BOX_RIDGE.dmax}]——會跑出合理分數範圍之外。這正是為什麼部署上線的版本要另外加一道「夾在0.03~0.97之間」的保護，兩個方法本質上不是同一回事，不是單純數字湊巧接近而已。`;
-}
-renderBox();
-
-function renderBell(){
-  const svg=$('bellSvg');
-  const bx0=60,bx1=860,by0=20,by1=185;
-  const xmin=BELL_CENTERS[0]-0.0015,xmax=BELL_CENTERS[BELL_CENTERS.length-1]+0.0015;
-  const ymax=Math.max(...BELL_COUNTS);
-  const mapX=v=>bx0+(v-xmin)/(xmax-xmin)*(bx1-bx0);
-  const mapY=c=>by1-(c/ymax)*(by1-by0);
-  const barW=(mapX(BELL_CENTERS[1])-mapX(BELL_CENTERS[0]))*0.86;
-
-  let g='';
-  [0,1000,2000,3000].forEach(c=>{
-    const y=mapY(c);
-    g+=`<line x1="${bx0}" y1="${y}" x2="${bx1}" y2="${y}" class="chartgrid"/>`;
-    g+=`<text class="chartaxis" x="${bx0-8}" y="${y+3}" text-anchor="end">${c}</text>`;
-  });
-  [-0.02,-0.01,0,0.01,0.02].forEach(v=>{
-    const x=mapX(v);
-    g+=`<text class="chartxlbl" x="${x}" y="${by1+16}" text-anchor="middle">${v>0?'+':''}${v.toFixed(2)}</text>`;
-  });
-  const x0=mapX(0);
-  g+=`<line x1="${x0}" y1="${by0-6}" x2="${x0}" y2="${by1}" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-dasharray="3,3"/>`;
-  g+=`<text class="chartaxis" x="${x0}" y="${by0-10}" text-anchor="middle" fill="rgba(255,255,255,.55)">0（完全吻合）</text>`;
-
-  BELL_CENTERS.forEach((c,i)=>{
-    const x=mapX(c),y=mapY(BELL_COUNTS[i]);
-    g+=`<rect x="${x-barW/2}" y="${y}" width="${barW}" height="${by1-y}" fill="#f97316" fill-opacity=".55"/>`;
-  });
-  const linePts=BELL_CENTERS.map((c,i)=>`${mapX(c)},${mapY(BELL_COUNTS[i])}`).join(' ');
-  g+=`<polyline points="${linePts}" fill="none" stroke="#fdba74" stroke-width="2"/>`;
-  g+=`<text class="chartxlbl" x="${(bx0+bx1)/2}" y="212" text-anchor="middle">落差（實際 − Ridge估計）</text>`;
-  svg.innerHTML=g;
-
-  $('bellNote').innerHTML=`<b>平均落差</b>：${BELL_STAT.mean.toFixed(6)}（幾乎等於 0）　`+
-    `<b>標準差</b>：${BELL_STAT.std}　`+
-    `<b>此圖顯示範圍</b>：±0.03 內共 ${BELL_STAT.nInRange} 家（${(BELL_STAT.nInRange/BELL_STAT.nTotal*100).toFixed(1)}%）——`+
-    `絕大多數門市集中在 0 附近（單一bin最高 3,095 家），是典型的鐘形分布，但兩側仍拖著一條長尾，代表少數門市的落差明顯大於平均，不是每一家都完美重疊。`;
-}
-renderBell();
-
-function toggleRidgeLine(){
-  CHART_SHOW_RIDGE=!CHART_SHOW_RIDGE;
-  $('chartToggle').classList.toggle('on',CHART_SHOW_RIDGE);
-  $('chartToggle').textContent=CHART_SHOW_RIDGE?'− 隱藏 Ridge 迴歸估計值':'+ 疊加 Ridge 迴歸估計值';
-  $('chartLegend').style.display=CHART_SHOW_RIDGE?'flex':'none';
-  renderChart();
-}
-renderChart();
 
 function doSrch(){
   const v=$('sI').value.trim().toLowerCase();
