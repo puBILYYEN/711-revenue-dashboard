@@ -400,7 +400,8 @@
   <div class="tabbar">
     <button class="tbtn on" data-view="honesty" onclick="switchTab('honesty')"><span class="tbtnum">①</span>🎯 先看這裡：誠實邊界</button>
     <button class="tbtn" data-view="overview" onclick="switchTab('overview')"><span class="tbtnum">②</span>📋 門市總覽</button>
-    <button class="tbtn" data-view="modelaudit" onclick="switchTab('modelaudit')"><span class="tbtnum">③</span>📊 模型考核（深入）</button>
+    <button class="tbtn" data-view="modelcheck" onclick="switchTab('modelcheck')"><span class="tbtnum">③</span>🔬 模型驗證（深入）</button>
+    <button class="tbtn" data-view="modelaudit" onclick="switchTab('modelaudit')"><span class="tbtnum">④</span>📊 模型考核（深入）</button>
   </div>
 
   <div id="viewOverview" style="display:none">
@@ -561,8 +562,8 @@
       <div class="cd vp">
         <div class="vttl">✅ 合理性驗證結果</div>
         <div class="spb">
-          <div class="sprho">+0.295</div>
-          <div class="spinfo"><b>Spearman 相關係數</b>（進階版）<br>n = 7,225 筆 · p &lt; 0.001<br>方法：殘差法（控制人口）<br>較初版 +0.219 提升 34.6%・新舊排序相關 0.969</div>
+          <div class="sprho">+0.219</div>
+          <div class="spinfo"><b>Spearman 相關係數</b>（正式結論）<br>n = 7,225 筆 · p &lt; 1e-78<br>方法：殘差法（控制人口）<br>交叉驗證：控制戶數版 +0.196（n=7,216），方向一致</div>
         </div>
         <div class="vnote">💡 <b>資料洩漏防範（Data Leakage Prevention）</b>：所得中位數全程未進入模型訓練，僅於最終驗證階段對照方向合理性——避免自己出題自己改答案的循環論證。</div>
         <div class="vwarn">⚠️ Naive 人均法 Spearman = <span style="color:var(--re)">−0.235</span>（失真）：人口越多店越密，稀釋人均，非模型問題，已棄用。</div>
@@ -748,6 +749,70 @@
   </div>
 
 
+  <div id="viewModelcheck" class="tabview" style="display:none">
+    <div class="cd mck">
+      <div class="mckttl">🔬 模型驗證：兩層式分配是怎麼算出來的</div>
+      <div class="mcksub">層一決定「這個地區值多少」，層二決定「這間店在地區裡排第幾」，兩層相乘得到總分數，再依比例分配總營收。這頁講的是模型內部真正的計算路徑，以及兩個在內部檢查階段自己抓出來、不是被業師指出來的關鍵修正。</div>
+
+      <div class="mckcon">
+        <b>兩層相乘</b>：總分數ᵢ ＝ 層一地區基準(鄉鎮) × 層二相對分數(店)<br>
+        比例分配對兩層的單調縮放不敏感，因此兩層可以分別調校而不互相污染。完整流程：資料清洗（7表併1表、地名正規化）→ 特徵標準化（log1p 消除右偏）→ 層一 Ridge 學鄉鎮租金水準 → 層二 PCA＋熵權法組合賦權 → 分數換算金額（比例分配，Σ＝總營收）→ 合理性驗證。
+      </div>
+
+      <div class="mckgrid">
+        <div class="mckcard hl">
+          <div class="mckstep">層一・地區基準（鄉鎮級）</div>
+          <div class="mckq">Ridge 迴歸學鄉鎮租金水準</div>
+          <div class="mcknum g">CV R² 0.508</div>
+          <div class="mckdesc">以鄉鎮租金水準為目標變數，讓模型自己學，取代舊做法「北 1.20／南 0.90」手打乘數；RidgeCV 自動選 alpha=26.05，不是人工指定。<b>為什麼用租金當目標</b>：租金是市場對「這個地段值多少」的公開定價，與營收同向但非同一件事——等於讓市場替我們定義地區基準，比人工分五級有依據。
+            <div style="margin-top:.4rem;color:rgba(239,68,68,.75)">⚠️ 0.508 是隨機切分的樣本外結果；改用空間分塊（leave-one-county-out）外推到沒看過的縣市，R² 只有 <b>0.371</b>——引用時必須標明是哪一種。</div>
+          </div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">層一・係數怎麼讀</div>
+          <div class="mckq">哪些特徵推高地區基準？</div>
+          <div class="mcknum">ownStoreNum +0.234</div>
+          <div class="mckdesc"><b>自家店數 +0.234</b>（最強）：自家店密集處＝總部認定的高價值商圈。<b>競爭店 +0.145</b>：競爭者也往高租金地段聚集。<b>餐飲POI −0.124</b>：餐飲密集不等於地段貴，夜市型商圈租金反而低。<b>人口／交通POI 近乎為零</b>（−0.005／−0.009）：已被戶數與自家店數吸收，是共線的表現（人口與戶數 r=0.99），不是人口不重要。</div>
+        </div>
+        <div class="mckcard hl">
+          <div class="mckstep">層一・關鍵修正（自己抓到的）</div>
+          <div class="mckq">單一高權重極端值會主導整層</div>
+          <div class="mcknum r">0.004 → 0.508</div>
+          <div class="mckdesc">修正前 CV R² 只有 <b>0.004</b>，模型幾乎等於沒學到東西——台北市中山區租金 939.5 元/坪、成交 104 筆，單一鄉鎮同時是最大值又拿最大權重，把整條迴歸線拉走。修正：目標變數改取 log1p（偏態 3.29→0.19）、樣本權重由成交筆數改為其平方根。
+            <div style="margin-top:.4rem;color:rgba(255,255,255,.45);font-size:.78rem">為什麼不選加權 R² 最高的那組（0.521）：那組的權重也是成交筆數，等於讓中山區同時當考題與評分權重（單一鄉鎮佔 8.4% 權重）。抽掉中山區後該組從 0.521 掉到 0.395，採用組只從 0.508 掉到 0.458；改看四組共通的不加權 R²，採用組 0.405 明顯勝過 0.289。</div>
+          </div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">層二・店內相對分數（店級）</div>
+          <div class="mckq">PCA ＋ 熵權法組合賦權</div>
+          <div class="mcknum">兩者平均</div>
+          <div class="mckdesc"><b>PCA 抓「共同變異」</b>：找出所有特徵一起變動的主軸，權重分布相對平均（0.097～0.164，最大／最小僅 1.7 倍）。<b>熵權法抓「鑑別度」</b>：哪個特徵最能把店分出高低就給高權重，分布極端得多（生活POI 0.300、交通POI 0.229、人口只有 0.037，最大／最小 8.0 倍）。特徵方向（正向／負向）由領域知識指定——競爭店為負向，方向是人訂的，權重大小才是模型學的。</div>
+        </div>
+        <div class="mckcard hl">
+          <div class="mckstep">層二・關鍵修正（自己抓到的）</div>
+          <div class="mckq">極端值讓最低店金額落到不合理區間</div>
+          <div class="mcknum r">NT$228 → NT$50,624</div>
+          <div class="mckdesc">台東縣金峰鄉某店所有特徵確實全為 0，經 naive min-max 正規化後分數趨近 0，再經 PCA→熵權→組合三段串接，誤差被連乘放大，算出「月營收 228 元」這種不可能開店的數字，前後差 <b>222 倍</b>。修正做法：正規化前先把 0.5%／99.5% 分位以外的值截斷；下限 eps 由 0 改為校準後的 0.03，且只設一次，三段串接不再各自套一次避免連乘。</div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">獨立驗證</div>
+          <div class="mckq">層二數學有沒有算錯？</div>
+          <div class="mcknum g">5 項全數通過</div>
+          <div class="mckdesc">另外寫一份<b>不共用程式碼</b>的 PCA／熵權法實作去比對結果（<code>99_verify_layer2.py</code>），5 項數學驗證全數通過（含手算對照），並確認 fit／apply 分離正確、Bootstrap 不會發生資料洩漏——重抽樣時若在每個樣本上重新 fit，信賴區間會被系統性低估，這是此類管線最常見的錯誤。</div>
+        </div>
+      </div>
+
+      <div class="mckcon">
+        <b>⚠️ 關於「為什麼要組合兩種方法」</b>：設計當時的理由是「PCA 會被高度相關的特徵群綁架、熵權法會偏愛稀疏特徵，取平均可以互相牽制」——但<b style="color:#ef4444">這個理由後來沒有通過實測</b>。控制鄉鎮後與村里所得比對，複合分數 ρ=+0.137，輸給單用機構POI數量的 +0.299，甚至低於它自己的 PCA 成分 +0.150。「取平均可稀釋偏誤」目前無實證支持，詳見「模型考核」分頁與「誠實邊界」分頁。
+      </div>
+
+      <div class="mckcon">
+        <b>主動揭露</b>：層一與層二這兩個關鍵修正，都不是業師指出來的，是我們自己在看輸出分布時覺得數字不對勁才追下去的。報告中完整保留修正前後對照，沒有把修正前的版本藏起來。
+      </div>
+      <div class="nextstep"><button class="nextbtn" onclick="switchTab('modelaudit')">再看外部驗證：模型考核 →</button></div>
+    </div>
+  </div>
+
   <div id="viewModelaudit" class="tabview" style="display:none">
     <div class="cd mck">
       <div class="mckttl">📊 模型考核：外部驗證，不是自己驗證自己</div>
@@ -760,15 +825,23 @@
         <div class="chartwrap">
           <svg viewBox="0 0 900 195" id="auditSvg"></svg>
         </div>
-        <div class="boxnote">三者用的是同一份所得資料，差別只在算法有沒有先扣掉「人口」的干擾、以及後續是否有再優化——naive 方向錯了要棄用，殘差法方向對了才拿來當正式結論，進階版則是同一套邏輯上再進步的版本。</div>
+        <div class="boxnote">三者用的是同一份所得資料，差別只在算法有沒有先扣掉「人口」的干擾——naive 方向錯了要棄用，殘差法方向對了才拿來當正式結論，控制戶數的版本則是換一個控制變數的交叉驗證，結論一致。</div>
       </div>
 
       <div class="mckgrid">
         <div class="mckcard hl">
-          <div class="mckstep">正式採用（進階版）</div>
+          <div class="mckstep">正式結論</div>
           <div class="mckq">殘差法（控制人口）</div>
-          <div class="mcknum g">Spearman +0.295</div>
-          <div class="mckdesc">n = 7,225 筆・p &lt; 0.001<br>先用迴歸把「人口」的影響扣掉，剩下的殘差才拿去跟所得中位數比對——排除「人口多、營收高、所得統計也偏高」這個共同干擾源，才是乾淨的檢驗。初版 +0.219 已升級為此進階版。</div>
+          <div class="mcknum g">Spearman +0.219</div>
+          <div class="mckdesc">n = 7,225 筆・p &lt; 1e-78<br>先用迴歸把「人口」的影響扣掉，剩下的殘差才拿去跟所得中位數比對——排除「人口多、營收高、所得統計也偏高」這個共同干擾源，才是乾淨的檢驗。
+            <div style="margin-top:.4rem;color:rgba(255,255,255,.45);font-size:.78rem">ρ=0.219 算高還是低？所得只是消費力的其中一個代理變數，不該期待高相關——真的跑出 0.8 反而要懷疑資料洩漏。在 n=7,225、p&lt;1e-78 的情況下，正向且顯著即符合「方向正確」的驗證目的。</div>
+          </div>
+        </div>
+        <div class="mckcard">
+          <div class="mckstep">交叉驗證・結論一致</div>
+          <div class="mckq">殘差法（控制戶數）</div>
+          <div class="mcknum g">Spearman +0.196</div>
+          <div class="mckdesc">n = 7,216 筆・p &lt; 1e-62<br>換一個控制變數重跑一次，方向與顯著性都一致——代表這個正向結果不是挑特定控制變數挑出來的。</div>
         </div>
         <div class="mckcard">
           <div class="mckstep">已棄用</div>
@@ -785,10 +858,10 @@
           </div>
         </div>
         <div class="mckcard">
-          <div class="mckstep">進階版更新</div>
-          <div class="mckq">同一套邏輯，後來又進步了</div>
-          <div class="mcknum g">+34.6%</div>
-          <div class="mckdesc">殘差法（控population）Spearman 從 0.219 進步到 <b style="color:#22d3ee">0.295</b>，新舊版本的門市排名相關性仍有 <b>0.969</b>——代表不是換了一套邏輯重新算，只是同一套方法上再優化，門市排序幾乎沒變，只是驗證訊號更明顯了。</div>
+          <div class="mckstep">為什麼 naive 方法會失真</div>
+          <div class="mckq">分母被系統性低估</div>
+          <div class="mcknum r">150m 半徑人口</div>
+          <div class="mckdesc">人均營收 ＝ 營收 ÷ 150m 半徑人口。偏鄉店的實際客源遠超過 150m 半徑，分母被系統性低估，導致人均值虛高、相關係數翻成負號——不是模型有問題，是這個算法本身失真。改用「控制人口後的殘差」就回到正向顯著。這個錯誤我們沒有藏起來，完整保留在報告裡。</div>
         </div>
       </div>
 
@@ -998,6 +1071,7 @@ function scrollToPain(cardSelector){
 function switchTab(view){
   $('viewOverview').style.display=view==='overview'?'contents':'none';
   $('viewHonesty').style.display=view==='honesty'?'block':'none';
+  $('viewModelcheck').style.display=view==='modelcheck'?'block':'none';
   $('viewModelaudit').style.display=view==='modelaudit'?'block':'none';
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.view===view));
   if(view==='overview'){
@@ -1046,8 +1120,8 @@ function renderAudit(){
   g+=`<line x1="${x0}" y1="15" x2="${x0}" y2="178" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>`;
 
   const rows=[
-    {y:y0,v:0.295,color:'#10b981',label:'殘差法・進階版・採用'},
-    {y:y1,v:0.219,color:'#22d3ee',label:'殘差法（控制人口）・初版'},
+    {y:y0,v:0.219,color:'#10b981',label:'殘差法（控制人口）・正式結論'},
+    {y:y1,v:0.196,color:'#22d3ee',label:'殘差法（控制戶數）・交叉驗證'},
     {y:y2,v:-0.235,color:'#ef4444',label:'Naive人均法・棄用'},
   ];
   rows.forEach(r=>{
@@ -1057,7 +1131,6 @@ function renderAudit(){
     g+=`<rect x="${bx}" y="${r.y-barH/2}" width="${Math.max(bw,2)}" height="${barH}" fill="${r.color}" fill-opacity=".55" stroke="${r.color}" stroke-width="1.5" rx="3"/>`;
     g+=`<text x="${x+(r.v>=0?8:-8)}" y="${r.y+5}" text-anchor="${r.v>=0?'start':'end'}" font-size="13" font-weight="900" fill="${r.color}">${r.v>0?'+':''}${r.v}</text>`;
   });
-  g+=`<text x="${mapX(0.219)}" y="${(y0+y1)/2+4}" text-anchor="middle" font-size="10" font-weight="700" fill="#22d3ee">↑ +34.6%</text>`;
   g+=`<text class="chartxlbl" x="${(ax0+ax1)/2}" y="14" text-anchor="middle" fill="rgba(255,255,255,.5)">Spearman 相關係數</text>`;
   svg.innerHTML=g;
 }
