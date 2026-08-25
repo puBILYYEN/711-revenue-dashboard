@@ -760,8 +760,8 @@
           <button class="chartbtn" id="chartToggle" onclick="toggleRidgeLine()">+ 疊加 Ridge 迴歸估計值</button>
         </div>
         <div class="chartlegend" id="chartLegend" style="display:none">
-          <span class="lgitem"><span class="lgdot" style="background:#10b981"></span>PCA+熵權法（近似值）</span>
-          <span class="lgitem"><span class="lgdot" style="background:#3b82f6"></span>Ridge 迴歸（估計值）</span>
+          <span class="lgitem"><span class="lgdot" style="background:#10b981"></span>PCA+熵權法（實際值）</span>
+          <span class="lgitem"><span class="lgdot" style="background:#3b82f6"></span>Ridge 迴歸（獨立估計值）</span>
           <span class="lgstat">交叉驗證 R²=0.9996・平均絕對誤差 0.0016</span>
         </div>
         <div class="chartwrap" id="chartWrap">
@@ -1287,11 +1287,11 @@ function renderBox(){
   g+=`<line x1="${x1}" y1="12" x2="${x1}" y2="150" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-dasharray="3,3"/>`;
   g+=`<text class="chartaxis" x="${(x0+x1)/2}" y="10" text-anchor="middle" fill="rgba(255,255,255,.5)">合理分數範圍 0～1</text>`;
 
-  g=drawBoxRow(g,BOX_ACTUAL,52,'#10b981','PCA+熵權法（近似值）');
-  g=drawBoxRow(g,BOX_RIDGE,110,'#3b82f6','Ridge迴歸（估計值）');
+  g=drawBoxRow(g,BOX_ACTUAL,52,'#10b981','PCA+熵權法（實際值）');
+  g=drawBoxRow(g,BOX_RIDGE,110,'#3b82f6','Ridge迴歸（獨立估計值）');
   svg.innerHTML=g;
 
-  $('boxNote').innerHTML=`<b>中位數／IQR幾乎相同</b>：PCA+熵權法近似值中位數 ${BOX_ACTUAL.med}、Ridge ${BOX_RIDGE.med}（差距僅 0.0005），中間50%門市的分布範圍也幾乎重疊　`+
+  $('boxNote').innerHTML=`<b>中位數／IQR幾乎相同</b>：PCA+熵權法實際值中位數 ${BOX_ACTUAL.med}、Ridge ${BOX_RIDGE.med}（差距僅 0.0005），中間50%門市的分布範圍也幾乎重疊　`+
     `｜<b>但全距不一樣</b>：PCA+熵權法因為公式本身有夾限，數值必然落在 [0.03, 0.97] 之間；Ridge 是原始線性預測，沒有這層保護，實測範圍到 [${BOX_RIDGE.dmin}, ${BOX_RIDGE.dmax}]——會跑出合理分數範圍之外。這正是為什麼部署上線的版本要另外加一道「夾在0.03~0.97之間」的保護，兩個方法本質上不是同一回事，不是單純數字湊巧接近而已。`;
 }
 renderBox();
