@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>7-ELEVEN 門市月營收 AI 智慧回推系統</title>
-  <meta name="description" content="7-11 全台 7,313 間門市月營收 AI 雙層模型估算查詢看板">
+  <title>連鎖便利超商 門市月營收 AI 智慧回推系統</title>
+  <meta name="description" content="連鎖便利超商 全台 7,313 間門市月營收 AI 雙層模型估算查詢看板">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <link href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" rel="stylesheet" />
@@ -27,9 +27,8 @@
     .hd{background:linear-gradient(135deg,#09132a,#0e2040,#09132a);border-bottom:1px solid var(--b);padding:0 2rem;position:sticky;top:0;z-index:50;}
     .hdi{max-width:1700px;margin:0 auto;display:flex;align-items:center;height:62px;gap:1.25rem;}
     .hd-logo{display:flex;align-items:center;gap:.7rem;}
-    .hd-badge{width:40px;height:40px;border-radius:8px;position:relative;overflow:hidden;background:linear-gradient(180deg,#ff8200 0%,#ff8200 14%,#ed1c24 14%,#ed1c24 66%,var(--g-hd) 66%,var(--g-hd) 100%);box-shadow:0 0 18px rgba(0,166,80,.4);}
-    .hd-badge-7{position:absolute;top:0;left:0;right:0;height:66%;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;font-style:italic;color:#fff;line-height:1;font-family:Georgia,"Times New Roman",serif;}
-    .hd-badge-ev{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:7px;font-weight:700;font-style:italic;letter-spacing:.2px;color:#fff;font-family:Georgia,"Times New Roman",serif;}
+    .hd-badge{width:40px;height:40px;border-radius:8px;position:relative;overflow:hidden;background:var(--g-hd);box-shadow:0 0 18px rgba(0,166,80,.4);display:flex;align-items:center;justify-content:center;}
+    .hd-badge-7{font-size:21px;line-height:1;color:#fff;}
     .hd-t h1{font-size:1rem;font-weight:700;color:#fff;white-space:nowrap;}
     .hd-t{flex-shrink:0;}
     .hd-logo{flex-shrink:0;}
@@ -146,6 +145,15 @@
     .fdesc{font-size:.6rem;font-weight:400;color:rgba(255,255,255,.5);margin-top:.45rem;line-height:1.4;}
     .fop{width:28px;text-align:center;vertical-align:middle;font-size:1.15rem;font-weight:900;color:var(--g);}
     .fresult{color:var(--g);}
+    .qtblwrap{overflow-x:auto;border-radius:12px;background:linear-gradient(135deg,#09132a,#0e2040,#09132a);padding:.9rem 1rem;margin-top:.6rem;}
+    .qtbl{width:100%;min-width:660px;border-collapse:collapse;}
+    .qtbl th{padding:.5rem .6rem;font-size:.66rem;font-weight:700;color:rgba(255,255,255,.45);text-align:left;border-bottom:1px solid rgba(255,255,255,.12);}
+    .qtbl td{padding:.62rem .6rem;font-size:.76rem;color:rgba(255,255,255,.82);border-bottom:1px solid rgba(255,255,255,.06);line-height:1.55;vertical-align:top;}
+    .qtbl tr:last-child td{border-bottom:none;}
+    .qtbl td.qres{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;}
+    .qtbl tr.qpass td{background:rgba(16,185,129,.09);}
+    .qtbl tr.qpass td.qres{color:#10b981;}
+    .qtbl td.qno{color:#ef4444;font-weight:700;}
     .tick{padding:1.1rem 1.2rem;}
     .tickhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem;}
     .tickttl{font-size:.85rem;font-weight:700;color:var(--tx);}
@@ -369,8 +377,8 @@
 <header class="hd">
   <div class="hdi">
     <div class="hd-logo">
-      <div class="hd-badge"><div class="hd-badge-7">7</div><div class="hd-badge-ev">eleven</div></div>
-      <div class="hd-t"><h1>門市月營收 AI 智慧回推系統</h1><p>全台 7,313 間門市 · Ridge × PCA 雙層架構 · v8</p></div>
+      <div class="hd-badge"><div class="hd-badge-7">🏪</div></div>
+      <div class="hd-t"><h1>連鎖便利超商 門市月營收 AI 智慧回推系統</h1><p>全台 7,313 間門市 · Ridge × PCA 雙層架構 · v8</p></div>
       <select class="verSel" id="verSel" onchange="switchVer(this)">
         <option value="delin" selected>德麟版</option>
         <option value="leader">博文版</option>
@@ -409,7 +417,7 @@
     <div class="allocicon">🎯</div>
     <div class="alloctxt">
       <div class="alloctitle">這是分配題，不是預測題</div>
-      <div class="allocdesc">全台 7-ELEVEN 合併月營收（<b id="allocTotal">189.84 億</b>）是 2025 統一超財報揭露的<b>真實數字</b>，不是預測值——這個模型要回答的不是「這家店賺多少」，是「這筆已經確定的錢，該怎麼切給 7,313 家店」。<b>硬性約束</b>：全部門市的估計值加總，會精確等於這個總額，誤差 0.00 元——這是結構上的保證，不是湊出來的。真正有不確定性的地方，是「怎麼切」（每家店在同鄉鎮裡的相對強弱、也就是 PR 值），<b>不是「總共有多少錢」</b>。</div>
+      <div class="allocdesc">全台連鎖便利超商合併月營收（<b id="allocTotal">189.84 億</b>）是 2025 年財報揭露的<b>真實數字</b>，不是預測值——這個模型要回答的不是「這家店賺多少」，是「這筆已經確定的錢，該怎麼切給 7,313 家店」。<b>硬性約束</b>：全部門市的估計值加總，會精確等於這個總額，誤差 0.00 元——這是結構上的保證，不是湊出來的。真正有不確定性的地方，是「怎麼切」（每家店在同鄉鎮裡的相對強弱、也就是 PR 值），<b>不是「總共有多少錢」</b>。</div>
       <div class="allocreasons">
         <div class="allocr"><b>為什麼不能直接預測？</b>單店月營收是商業機密，無法取得——沒有可供監督式學習的正確答案（Y）。</div>
         <div class="allocr"><b>手上有什麼？</b>只有「當月全台合併營收」這一個數字，卻要回推分給 7,313 間店。</div>
@@ -638,8 +646,43 @@
           <div class="mckdesc">清洗驗證全台 7,313 家店的 POI／人口／競爭店特徵，揪出取樣半徑規格落差（實際取樣面積是規格的6.4倍），並建立「所得全程不進訓練」的資料洩漏防範機制——實測若違反這條規則，驗證相關係數會從0.238虛胖到0.426。</div>
         </div>
       </div>
-      <div class="mckcon">
-        <b>還不能用的部分，講清楚</b>：精確金額不能拿去做財務決策（縣市層級輸給虛無模型）；跨鄉鎮／跨縣市排名沒有數據支撐，只在「同一鄉鎮內」驗證過方向正確。
+      <div class="trustttl">📋 投資人的五種問法，這個看板各能回答到什麼程度</div>
+      <div class="qtblwrap">
+        <table class="qtbl">
+          <thead>
+            <tr><th style="width:34%">投資人的問題</th><th style="width:24%">模型解析度</th><th>判定</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>「這家店一個月賺多少？」</td>
+              <td class="qres">縣市 CI 涵蓋率 2/20</td>
+              <td class="qno">絕對金額不可用</td>
+            </tr>
+            <tr>
+              <td>「我看中的新地址值不值得開？」</td>
+              <td class="qres">資料不涵蓋</td>
+              <td class="qno">八項特徵都以既有門市為圓心算出</td>
+            </tr>
+            <tr>
+              <td>「跨縣市哪個縣市的店比較好？」</td>
+              <td class="qres">skill score −91.4</td>
+              <td class="qno">輸給「每店等額」的虛無模型</td>
+            </tr>
+            <tr>
+              <td>「這兩家哪家好？」（排名相鄰兩店）</td>
+              <td class="qres">僅 7.6% 可分辨</td>
+              <td class="qno">精細名次不可靠</td>
+            </tr>
+            <tr class="qpass">
+              <td><b>「這家在同鄉鎮算好還是差？」</b></td>
+              <td class="qres">外部檢定 52.2%｜隨機 48.1%</td>
+              <td style="color:#10b981;font-weight:700">△ 方向通過（+4.1pp、4.2σ）<br><span style="font-weight:400;font-size:.72rem">唯一通過外部檢定的用法</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="boxnote" style="color:var(--tm)">
+        <b>93.7% 量的是精確度，不是正確性</b>——它指的是「最高層 ↔ 最低層」的信賴區間不重疊比例；相鄰層只有 64.9%（較佳↔中等）與 77.4%（中等↔較弱），代表這個分層是<b>辨認兩端</b>，不是定位中段。這也是為什麼這個看板刻意不叫「選址工具」：資料不涵蓋任何新地址。
       </div>
 
       <div class="mckcon">
@@ -685,7 +728,7 @@
         <div class="charthd">
           <div class="chartttl">延伸分析：展店缺口模型——換一個有真值的問題來校準方法</div>
         </div>
-        <div class="boxnote">縣市離散度異常的根因，是模型缺少「門市網絡已達均衡」的吸收機制——但「這家店該賺多少」沒有真值，沒辦法直接校準。換個問法：「這個村里該有幾家門市」是有真值的（真值取自 7-ELEVEN 官方門市地圖全量對賬，7,019 家可見門市），可以拿來校準同一套空間均衡邏輯。</div>
+        <div class="boxnote">縣市離散度異常的根因，是模型缺少「門市網絡已達均衡」的吸收機制——但「這家店該賺多少」沒有真值，沒辦法直接校準。換個問法：「這個村里該有幾家門市」是有真值的（真值取自連鎖便利超商官方門市地圖全量對賬，7,019 家可見門市），可以拿來校準同一套空間均衡邏輯。</div>
       </div>
       <div class="mckgrid">
         <div class="mckcard hl">
@@ -726,7 +769,7 @@
         <div class="mckcard">
           <div class="mckstep">02</div>
           <div class="mckq">補齊店級屬性</div>
-          <div class="mckdesc">賣場面積、營業時間、店型、是否設座位區／ibon——業界類迴歸中賣場面積通常是最強的單一變數，現有七張表<b style="color:#ef4444">完全沒有</b>。7-ELEVEN 官網的逐店服務標籤是公開可取得的。</div>
+          <div class="mckdesc">賣場面積、營業時間、店型、是否設座位區／ibon——業界類迴歸中賣場面積通常是最強的單一變數，現有七張表<b style="color:#ef4444">完全沒有</b>。連鎖便利超商官網的逐店服務標籤是公開可取得的。</div>
         </div>
         <div class="mckcard">
           <div class="mckstep">03・前半已完成</div>
